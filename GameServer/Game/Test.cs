@@ -1,11 +1,11 @@
 ﻿using System;
-using AllInOneGameServer.Game.Components.Scripts;
 using LightEngine.Components;
 using LightEngine.Configuration;
 using LightEngine.Loop;
 using LightEngine.PhysicsEngine.Dynamics;
 using LightEngine.PhysicsEngine.Primitives;
-namespace AllInOneGameServer.Game
+
+namespace GameServer.Game
 {
     class Test
     {
@@ -20,8 +20,11 @@ namespace AllInOneGameServer.Game
             gameLoop.RegisterGameObject(box);
             gameLoop.RegisterGameObject(ground);
             gameLoop.shouldDrawToConsole = true;
-            loopManager.AddLoop(gameLoop);
 
+
+
+
+            loopManager.AddLoop(gameLoop);
             while (true)
             {
                 var keyInfo = Console.ReadKey(true);

@@ -1,6 +1,6 @@
 ﻿namespace LightEngine.Components
 {
-    public abstract class Component
+    public abstract class Behaviour
     {
         public GameObject gameObject;
 

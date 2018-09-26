@@ -1,9 +1,9 @@
 ﻿using LightEngine.Components;
 using LightEngine.PhysicsEngine.Primitives;
 
-namespace AllInOneGameServer.Game.Components.Scripts
+namespace GameServer.Game.Components.Scripts
 {
-    class Jump : Component
+    class Jump : Behaviour
     {
         public float jumpDelay = 1f;
         public float jumpFoce = 15f;

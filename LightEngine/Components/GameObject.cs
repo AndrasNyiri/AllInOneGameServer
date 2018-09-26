@@ -15,19 +15,19 @@ namespace LightEngine.Components
         public OnBelowGroundDelegate onBelowGround;
 
         public GameLoop gameLoop;
-        public List<Component> components = new List<Component>();
+        public List<Behaviour> components = new List<Behaviour>();
 
         public string name;
         public ulong id;
 
-        public GameObject(string name = "", params Component[] initComponents)
+        public GameObject(string name = "", params Behaviour[] initBehaviours)
         {
             this.name = name;
             if (string.IsNullOrEmpty(name))
             {
                 this.name = GetType().ToString();
             }
-            foreach (var component in initComponents)
+            foreach (var component in initBehaviours)
             {
                 AddComponent(component);
             }
@@ -46,14 +46,14 @@ namespace LightEngine.Components
             }
         }
 
-        public GameObject AddComponent(Component component)
+        public GameObject AddComponent(Behaviour behaviour)
         {
-            component.Assign(this);
-            this.components.Add(component);
+            behaviour.Assign(this);
+            this.components.Add(behaviour);
             return this;
         }
 
-        public GameObject AddComponent<T>() where T : Component, new()
+        public GameObject AddComponent<T>() where T : Behaviour, new()
         {
             T newComponent = new T();
             newComponent.Assign(this);
@@ -61,7 +61,7 @@ namespace LightEngine.Components
             return this;
         }
 
-        public T GetComponent<T>() where T : Component
+        public T GetComponent<T>() where T : Behaviour
         {
             foreach (var x in this.components)
             {

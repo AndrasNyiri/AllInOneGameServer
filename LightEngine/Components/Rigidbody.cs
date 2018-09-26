@@ -6,7 +6,7 @@ using World = LightEngine.PhysicsEngine.Dynamics.World;
 
 namespace LightEngine.Components
 {
-    public class Rigidbody : Component
+    public class Rigidbody : Behaviour
     {
         public readonly Body body;
         public Rigidbody(World world, float radius, float density, Vector2 position, BodyType bType)

@@ -7,7 +7,6 @@ namespace LightEngine.Loop
     public class LoopManager
     {
         private readonly List<List<GameLoop>> _loopList = new List<List<GameLoop>>();
-        private ulong _loopIdCounter = 1;
 
 
         public LoopManager()
@@ -40,8 +39,8 @@ namespace LightEngine.Loop
 
         public void AddLoop(GameLoop gameLoop)
         {
-            gameLoop.gameLoopId = _loopIdCounter++;
             int threadIndex = GetLeastBusyThreadIndex();
+            gameLoop.threadIndex = threadIndex;
             lock (_loopList[threadIndex])
             {
                 _loopList[threadIndex].Add(gameLoop);
@@ -52,13 +51,22 @@ namespace LightEngine.Loop
         {
             int threadIndex = GetLeastBusyThreadIndex();
             GameLoop newLoop = new GameLoop();
-            newLoop.gameLoopId = _loopIdCounter++;
+            newLoop.threadIndex = threadIndex;
             lock (_loopList[threadIndex])
             {
                 _loopList[threadIndex].Add(newLoop);
             }
-
             return newLoop;
+        }
+
+
+        public void StopLoop(GameLoop gameLoop)
+        {
+            if (gameLoop == null) return;
+            lock (_loopList[gameLoop.threadIndex])
+            {
+                _loopList[gameLoop.threadIndex].Remove(gameLoop);
+            }
         }
 
         private int GetLeastBusyThreadIndex()
@@ -78,26 +86,6 @@ namespace LightEngine.Loop
             }
 
             return index;
-        }
-
-
-        public GameLoop GetLoop(ulong gameloopId)
-        {
-            foreach (var loops in _loopList)
-            {
-                lock (loops)
-                {
-                    var loop = loops.Find(
-                        g =>
-                        g.gameLoopId == gameloopId);
-                    if (loop != null)
-                    {
-                        return loop;
-                    }
-                }
-
-            }
-            return null;
         }
 
     }

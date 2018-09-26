@@ -9,7 +9,7 @@ namespace LightEngine.Loop
 {
     public class GameLoop
     {
-        public ulong gameLoopId;
+        public int threadIndex;
 
         public bool shouldDrawToConsole = false;
         public long time;
