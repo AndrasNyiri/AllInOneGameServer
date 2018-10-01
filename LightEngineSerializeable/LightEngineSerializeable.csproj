@@ -42,9 +42,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerializableClasses\CommandObject.cs" />
     <Compile Include="SerializableClasses\Enums\CommandObjectCommand.cs" />
+    <Compile Include="SerializableClasses\Enums\GameEventType.cs" />
     <Compile Include="SerializableClasses\Enums\NetworkCommand.cs" />
+    <Compile Include="SerializableClasses\Enums\NetworkObjectType.cs" />
+    <Compile Include="SerializableClasses\GameEvent.cs" />
+    <Compile Include="SerializableClasses\GameEvents\NetworkObjectSpawnEvent.cs" />
     <Compile Include="SerializableClasses\Model\PlayerData.cs" />
-    <Compile Include="SerializableClasses\TestData.cs" />
+    <Compile Include="Utils\GameEventSerializer.cs" />
     <Compile Include="Utils\ObjectSerializationUtil.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

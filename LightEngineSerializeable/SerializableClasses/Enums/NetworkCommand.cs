@@ -4,5 +4,6 @@
     Register,
     GetPlayerData,
     Login,
-    StartGame
+    StartGame,
+    GameEventOption
 }
