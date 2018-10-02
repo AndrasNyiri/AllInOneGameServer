@@ -68,7 +68,7 @@ namespace LightGameServer.NetworkHandling.Handlers
                         break;
                     case NetworkCommand.StartGame:
                         Server.Get().AddToPendingPool(_peer);
-                        DataSender.New(_peer).Send(NetworkCommand.StartGame);
+                        DataSender.New(_peer).Send(NetworkCommand.StartGame, SendOptions.ReliableOrdered);
                         break;
                 }
             }

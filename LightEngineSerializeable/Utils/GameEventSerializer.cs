@@ -1,44 +1,69 @@
 ﻿using System.Collections.Generic;
+using LiteNetLib.Utils;
 
 namespace LightEngineSerializeable.Utils
 {
     public class GameEventSerializer
     {
-        public object[] Serialize(GameEvent gameEvent)
+        public NetDataWriter Serialize(params GameEvent[] gameEvents)
         {
-            List<object> parameters = new List<object>();
-            parameters.Add((int)gameEvent.Type);
+            var parameters = new List<object> { (byte)NetworkCommand.GameEventOption, gameEvents.Length };
 
-            switch (gameEvent.Type)
+            foreach (var gameEvent in gameEvents)
             {
-                case GameEventType.NetworkObjectSpawn:
-                    var spawnEvent = (NetworkObjectSpawnEvent)gameEvent;
-                    parameters.Add(spawnEvent.Id);
-                    parameters.Add((int)spawnEvent.ObjectType);
-                    parameters.Add(spawnEvent.PositionX);
-                    parameters.Add(spawnEvent.PositionY);
-                    break;
+                parameters.Add((byte)gameEvent.Type);
+                switch (gameEvent.Type)
+                {
+                    case GameEventType.NetworkObjectSpawn:
+                        var spawnEvent = (NetworkObjectSpawnEvent)gameEvent;
+                        parameters.Add(spawnEvent.Id);
+                        parameters.Add((byte)spawnEvent.ObjectType);
+                        parameters.Add(spawnEvent.PositionX);
+                        parameters.Add(spawnEvent.PositionY);
+                        break;
+                    case GameEventType.PositionSync:
+                        var positionSyncEvent = (PositionSyncEvent)gameEvent;
+                        parameters.Add(positionSyncEvent.Id);
+                        parameters.Add(positionSyncEvent.PositionX);
+                        parameters.Add(positionSyncEvent.PositionY);
+                        break;
+                }
             }
 
-            return parameters.ToArray();
+            return ObjectSerializationUtil.SerializeObjects(parameters.ToArray());
         }
 
-        public GameEvent Deserialize(params object[] parameters)
+        public List<GameEvent> Deserialize(NetDataReader reader)
         {
-            GameEvent gameEvent = null;
-            //int paramIndex = 0;
-            //GameEventType eventType = (GameEventType)parameters[paramIndex++];
-            //switch (eventType)
-            //{
-            //    case GameEventType.NetworkObjectSpawn:
-            //        gameEvent = new NetworkObjectSpawnEvent() { Id = (int)parameters[paramIndex++]
-            //                                                   ,ObjectType = (NetworkObjectType)((int)parameters[paramIndex++])
-            //                                                   ,PositionX = (float)
-            //                                                   ,PositionY = };
-            //        break;
-            //}
+            List<GameEvent> eventList = new List<GameEvent>();
+            int count = reader.GetInt();
 
-            return gameEvent;
+            for (int i = 0; i < count; i++)
+            {
+                GameEventType eventType = (GameEventType)reader.GetByte();
+                switch (eventType)
+                {
+                    case GameEventType.NetworkObjectSpawn:
+                        eventList.Add(new NetworkObjectSpawnEvent()
+                        {
+                            Id = reader.GetInt(),
+                            ObjectType = (NetworkObjectType)reader.GetByte(),
+                            PositionX = reader.GetFloat(),
+                            PositionY = reader.GetFloat()
+                        });
+                        break;
+                    case GameEventType.PositionSync:
+                        eventList.Add(new PositionSyncEvent()
+                        {
+                            Id = reader.GetInt(),
+                            PositionX = reader.GetFloat(),
+                            PositionY = reader.GetFloat()
+                        });
+                        break;
+                }
+            }
+
+            return eventList;
         }
     }
 }

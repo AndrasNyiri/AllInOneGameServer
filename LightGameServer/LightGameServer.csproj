@@ -38,9 +38,6 @@
     <StartupObject>LightGameServer.Run</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LiteNetLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\LiteNetLib.0.7.7.3\lib\net35\LiteNetLib.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="MySql.Data, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL" />
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -69,10 +66,11 @@
     <Compile Include="Database\Utils\Encryptor.cs" />
     <Compile Include="Database\Utils\Pair.cs" />
     <Compile Include="Game\Components\Scripts\Jump.cs" />
+    <Compile Include="Game\Match.cs" />
+    <Compile Include="Game\GameManager.cs" />
     <Compile Include="Game\Test.cs" />
     <Compile Include="NetworkHandling\Model\PeerInfo.cs" />
     <Compile Include="NetworkHandling\Handlers\CommandObjectHandler.cs" />
-    <Compile Include="NetworkHandling\Handlers\DataSender.cs" />
     <Compile Include="NetworkHandling\Handlers\NetworkCommandHandler.cs" />
     <Compile Include="NetworkHandling\Model\PlayerPair.cs" />
     <Compile Include="NetworkHandling\PendingGamePool.cs" />

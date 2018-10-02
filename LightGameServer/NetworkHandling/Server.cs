@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using LightEngineSerializeable.Utils;
+using LightGameServer.Game;
 using LightGameServer.NetworkHandling.Handlers;
 using LightGameServer.NetworkHandling.Model;
 using LiteNetLib;
@@ -29,6 +31,7 @@ namespace LightGameServer.NetworkHandling
 
         public readonly Dictionary<NetPeer, PeerInfo> peerInfos = new Dictionary<NetPeer, PeerInfo>();
         public readonly PendingGamePool pendingGamePool = new PendingGamePool();
+        public readonly GameManager gameManager = new GameManager();
 
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
@@ -77,12 +80,14 @@ namespace LightGameServer.NetworkHandling
             {
                 DataSender.New(playerPair.PlayerOne.Peer).SendCommandObject(new CommandObject(CommandObjectCommand.GameStarted, playerPair.PlayerTwo.PlayerData));
                 DataSender.New(playerPair.PlayerTwo.Peer).SendCommandObject(new CommandObject(CommandObjectCommand.GameStarted, playerPair.PlayerOne.PlayerData));
+                gameManager.StartMatch(playerPair.PlayerOne, playerPair.PlayerTwo);
             }
 
             var waiters = pendingGamePool.ResolveWaiters();
             foreach (var waiter in waiters)
             {
                 DataSender.New(waiter.Peer).SendCommandObject(new CommandObject(CommandObjectCommand.GameStarted, new PlayerData { Name = "BOT", LadderScore = waiter.PlayerData.LadderScore }));
+                gameManager.StartMatch(waiter);
             }
         }
 

@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using LightEngineSerializeable.Utils;
+using System.Linq;
 using LiteNetLib;
 using LiteNetLib.Utils;
 
-namespace LightGameServer.NetworkHandling.Handlers
+namespace LightEngineSerializeable.Utils
 {
-    class DataSender
+    public class DataSender
     {
         public class TypeSwitch
         {
             private readonly Dictionary<Type, Action<object>> _matches = new Dictionary<Type, Action<object>>();
-            public TypeSwitch Case<T>(Action<T> action) { _matches.Add(typeof(T), (x) => action((T)x)); return this; }
+            public TypeSwitch Case<T>(Action<T> action) { _matches.Add(typeof(T), x => action((T)x)); return this; }
             public void Switch(object x) { _matches[x.GetType()](x); }
         }
 
@@ -28,25 +28,25 @@ namespace LightGameServer.NetworkHandling.Handlers
             _peer = peer;
         }
 
-        public void Send(NetworkCommand command, SendOptions sendOption = SendOptions.ReliableOrdered, params object[] datas)
+        public void Send(NetworkCommand command, SendOptions sendOption, params object[] data)
         {
             try
             {
-                NetDataWriter writer = new NetDataWriter(true);
-                writer.Put((byte)command);
-                var ts = new TypeSwitch()
-                    .Case((string x) => { writer.Put(x); })
-                    .Case((int x) => { writer.Put(x); })
-                    .Case((float x) => { writer.Put(x); })
-                    .Case((long x) => { writer.Put(x); })
-                    .Case((ulong x) => { writer.Put(x); })
-                    .Case((byte[] x) => { writer.PutBytesWithLength(x); });
+                var sendData = data.ToList();
+                sendData.Insert(0, (byte)command);
+                _peer.Send(ObjectSerializationUtil.SerializeObjects(sendData.ToArray()), sendOption);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+        }
 
-                foreach (var data in datas)
-                {
-                    ts.Switch(data);
-                }
-
+        public void Send(NetDataWriter writer, SendOptions sendOption)
+        {
+            try
+            {
                 _peer.Send(writer, sendOption);
             }
             catch (Exception e)

@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using LiteNetLib.Utils;
 
 namespace LightEngineSerializeable.Utils
 {
@@ -45,44 +46,30 @@ namespace LightEngineSerializeable.Utils
             return (CommandObject)ByteArrayToObject(commandBytes);
         }
 
-        public static List<CommandObject> CreateCommandObjectsFromByteArray(byte[] buffer)
+
+        public static NetDataWriter SerializeObjects(params object[] parameters)
         {
-            List<CommandObject> cmdList = new List<CommandObject>();
-            bool done = false;
-            while (!done)
+            NetDataWriter writer = new NetDataWriter(true);
+            var ts = new DataSender.TypeSwitch()
+                .Case((string x) => { writer.Put(x); })
+                .Case((int x) => { writer.Put(x); })
+                .Case((float x) => { writer.Put(x); })
+                .Case((long x) => { writer.Put(x); })
+                .Case((ulong x) => { writer.Put(x); })
+                .Case((byte x) => { writer.Put(x); })
+                .Case((short x) => { writer.Put(x); })
+                .Case((double x) => { writer.Put(x); })
+                .Case((bool x) => { writer.Put(x); })
+                .Case((byte[] x) => { writer.PutBytesWithLength(x); });
+
+            foreach (var data in parameters)
             {
-                int size = BitConverter.ToInt32(buffer, 0);
-                int currentReceived = size + 4;
-                var cmdBuffer = new byte[size];
-                Array.Copy(buffer, 4, cmdBuffer, 0, size);
-
-                CommandObject rCmd = (CommandObject)ByteArrayToObject(cmdBuffer);
-                cmdList.Add(rCmd);
-
-                if (currentReceived < buffer.Length)
-                {
-                    byte[] temp = new byte[buffer.Length - currentReceived];
-                    Array.Copy(buffer, currentReceived, temp, 0, temp.Length);
-                    buffer = temp;
-                }
-                else
-                {
-                    done = true;
-                }
+                ts.Switch(data);
             }
 
-            return cmdList;
+            return writer;
         }
 
-        public static byte[] CreateCmdWithPrefix(CommandObject cmd)
-        {
-            var commandBytes = ObjectToByteArray(cmd);
-            int length = commandBytes.Length;
-            List<byte> sendList = new List<byte>();
-            sendList.AddRange(BitConverter.GetBytes(length));
-            sendList.AddRange(commandBytes);
-            return sendList.ToArray();
-        }
 
         sealed class PreMergeToMergedDeserializationBinder : SerializationBinder
         {

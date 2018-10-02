@@ -9,7 +9,7 @@ namespace LightGameServer.NetworkHandling
         private readonly List<PeerInfo> _pendingPool = new List<PeerInfo>();
 
         private const int LADDER_SCORE_MAX_DIFF = 100;
-        private const int PENDING_WAIT_TIME = 5;
+        private const int PENDING_WAIT_TIME = 2;
 
         public void AddPlayer(PeerInfo playerInfo)
         {

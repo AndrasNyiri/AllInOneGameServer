@@ -15,9 +15,9 @@ namespace LightEngineCore.Components
                 bType, this);
         }
 
-        public Rigidbody(World world, float width, float height, float density, Vector2 position, BodyType bType)
+        public Rigidbody(World world, float width, float height, float density, Vector2 position, BodyType bType, float rotation = 0f)
         {
-            body = BodyFactory.CreateRectangle(world, width, height, density, position, 0f,
+            body = BodyFactory.CreateRectangle(world, width, height, density, position, rotation,
                 bType, this);
         }
     }
