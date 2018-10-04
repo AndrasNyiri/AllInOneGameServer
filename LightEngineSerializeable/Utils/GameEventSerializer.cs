@@ -7,7 +7,7 @@ namespace LightEngineSerializeable.Utils
     {
         public NetDataWriter Serialize(params GameEvent[] gameEvents)
         {
-            var parameters = new List<object> { (byte)NetworkCommand.GameEventOption, gameEvents.Length };
+            var parameters = new List<object> { (byte)NetworkCommand.GameEventOption, (byte)gameEvents.Length };
 
             foreach (var gameEvent in gameEvents)
             {
@@ -18,14 +18,15 @@ namespace LightEngineSerializeable.Utils
                         var spawnEvent = (NetworkObjectSpawnEvent)gameEvent;
                         parameters.Add(spawnEvent.Id);
                         parameters.Add((byte)spawnEvent.ObjectType);
-                        parameters.Add(spawnEvent.PositionX);
-                        parameters.Add(spawnEvent.PositionY);
+                        parameters.Add(spawnEvent.PositionX.ToShort());
+                        parameters.Add(spawnEvent.PositionY.ToShort());
                         break;
                     case GameEventType.PositionSync:
                         var positionSyncEvent = (PositionSyncEvent)gameEvent;
                         parameters.Add(positionSyncEvent.Id);
-                        parameters.Add(positionSyncEvent.PositionX);
-                        parameters.Add(positionSyncEvent.PositionY);
+                        parameters.Add(positionSyncEvent.PositionX.ToShort());
+                        parameters.Add(positionSyncEvent.PositionY.ToShort());
+                        parameters.Add(positionSyncEvent.TimeStamp);
                         break;
                 }
             }
@@ -36,7 +37,7 @@ namespace LightEngineSerializeable.Utils
         public List<GameEvent> Deserialize(NetDataReader reader)
         {
             List<GameEvent> eventList = new List<GameEvent>();
-            int count = reader.GetInt();
+            int count = reader.GetByte();
 
             for (int i = 0; i < count; i++)
             {
@@ -46,18 +47,19 @@ namespace LightEngineSerializeable.Utils
                     case GameEventType.NetworkObjectSpawn:
                         eventList.Add(new NetworkObjectSpawnEvent()
                         {
-                            Id = reader.GetInt(),
+                            Id = reader.GetUShort(),
                             ObjectType = (NetworkObjectType)reader.GetByte(),
-                            PositionX = reader.GetFloat(),
-                            PositionY = reader.GetFloat()
+                            PositionX = reader.GetShort().ToFloat(),
+                            PositionY = reader.GetShort().ToFloat()
                         });
                         break;
                     case GameEventType.PositionSync:
                         eventList.Add(new PositionSyncEvent()
                         {
-                            Id = reader.GetInt(),
-                            PositionX = reader.GetFloat(),
-                            PositionY = reader.GetFloat()
+                            Id = reader.GetUShort(),
+                            PositionX = reader.GetShort().ToFloat(),
+                            PositionY = reader.GetShort().ToFloat(),
+                            TimeStamp = reader.GetFloat()
                         });
                         break;
                 }

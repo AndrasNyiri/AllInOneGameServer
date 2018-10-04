@@ -10,5 +10,6 @@ namespace LightEngineCore.Configuration
         public static float belowGround = -35f;
         public static Vector2 drawOrigin = new Vector2(10, 10);
         public static int simulatedThreadCount = 8;
+        public static float timeScale = 1.0f;
     }
 }

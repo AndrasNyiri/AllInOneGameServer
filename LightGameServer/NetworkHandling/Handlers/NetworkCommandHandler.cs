@@ -70,6 +70,12 @@ namespace LightGameServer.NetworkHandling.Handlers
                         Server.Get().AddToPendingPool(_peer);
                         DataSender.New(_peer).Send(NetworkCommand.StartGame, SendOptions.ReliableOrdered);
                         break;
+                    case NetworkCommand.RequestEventOption:
+                        RequestEventSerializer requestSerializer = new RequestEventSerializer();
+                        var requests = requestSerializer.Deserialize(_reader);
+                        var playerMatch = Server.Get().gameManager.GetMatch(Server.Get().peerInfos[_peer].PlayerData.PlayerId);
+                        if (playerMatch != null) playerMatch.AddRequests(requests.ToArray());
+                        break;
                 }
             }
             catch (Exception e)

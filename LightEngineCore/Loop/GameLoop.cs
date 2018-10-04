@@ -67,7 +67,7 @@ namespace LightEngineCore.Loop
                 _frames++;
             }
 
-            physicsWorld.Step(DeltaTime);
+            physicsWorld.Step(DeltaTime * Settings.timeScale);
             if (shouldDrawToConsole)
             {
                 Console.Clear();
@@ -114,6 +114,7 @@ namespace LightEngineCore.Loop
             if (rb != null) physicsWorld.RemoveBody(rb.body);
             _gameObjectsToRemove.Add(go);
         }
+
 
         public Invokable AddInvokable(Invokable invokable)
         {

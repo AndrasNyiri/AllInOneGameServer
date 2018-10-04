@@ -66,13 +66,19 @@
     <Compile Include="SerializableClasses\Enums\GameEventType.cs" />
     <Compile Include="SerializableClasses\Enums\NetworkCommand.cs" />
     <Compile Include="SerializableClasses\Enums\NetworkObjectType.cs" />
+    <Compile Include="SerializableClasses\Enums\RequestEventType.cs" />
     <Compile Include="SerializableClasses\GameEvent.cs" />
     <Compile Include="SerializableClasses\GameEvents\NetworkObjectSpawnEvent.cs" />
     <Compile Include="SerializableClasses\GameEvents\PositionSyncEvent.cs" />
     <Compile Include="SerializableClasses\Model\PlayerData.cs" />
+    <Compile Include="SerializableClasses\RequestEvent.cs" />
+    <Compile Include="SerializableClasses\RequestEvents\PushGameObjectRequest.cs" />
     <Compile Include="Utils\DataSender.cs" />
+    <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Utils\GameEventSerializer.cs" />
     <Compile Include="Utils\ObjectSerializationUtil.cs" />
+    <Compile Include="Utils\RequestEventSerializer.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

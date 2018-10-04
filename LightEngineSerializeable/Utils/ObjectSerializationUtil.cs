@@ -10,13 +10,7 @@ namespace LightEngineSerializeable.Utils
 {
     public class ObjectSerializationUtil
     {
-        public static IEnumerable<List<T>> SplitList<T>(List<T> locations, int nSize = 30)
-        {
-            for (int i = 0; i < locations.Count; i += nSize)
-            {
-                yield return locations.GetRange(i, Math.Min(nSize, locations.Count - i));
-            }
-        }
+
 
         public static byte[] ObjectToByteArray(Object obj)
         {
@@ -58,6 +52,7 @@ namespace LightEngineSerializeable.Utils
                 .Case((ulong x) => { writer.Put(x); })
                 .Case((byte x) => { writer.Put(x); })
                 .Case((short x) => { writer.Put(x); })
+                .Case((ushort x) => { writer.Put(x); })
                 .Case((double x) => { writer.Put(x); })
                 .Case((bool x) => { writer.Put(x); })
                 .Case((byte[] x) => { writer.PutBytesWithLength(x); });

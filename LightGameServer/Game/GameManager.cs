@@ -17,7 +17,7 @@ namespace LightGameServer.Game
         }
         public void StartMatch(PeerInfo playerOne)
         {
-            Match newMatch = new Match(_loopManager.StartLoop(), playerOne);
+            Match newMatch = new Match(_loopManager.StartLoop(), playerOne, null);
             _matches.Add(newMatch);
         }
 
@@ -25,6 +25,20 @@ namespace LightGameServer.Game
         {
             _loopManager.StopLoop(match.gameLoop);
             _matches.Remove(match);
+        }
+
+        public Match GetMatch(ulong playerId)
+        {
+            foreach (var match in _matches)
+            {
+                if (match.playerOne != null && match.playerOne.PlayerData != null && match.playerOne.PlayerData.PlayerId == playerId ||
+                    match.playerTwo != null && match.playerTwo.PlayerData != null && match.playerTwo.PlayerData.PlayerId == playerId)
+                {
+                    return match;
+                }
+            }
+
+            return null;
         }
     }
 }

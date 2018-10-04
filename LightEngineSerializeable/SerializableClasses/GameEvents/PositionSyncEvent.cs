@@ -1,11 +1,11 @@
 ﻿public class PositionSyncEvent : GameEvent
 {
-    public int Id { get; set; }
+    public ushort Id { get; set; }
     public float PositionX { get; set; }
     public float PositionY { get; set; }
+    public float TimeStamp { get; set; }
 
-    public PositionSyncEvent()
+    public PositionSyncEvent() : base(GameEventType.PositionSync)
     {
-        this.Type = GameEventType.PositionSync;
     }
 }

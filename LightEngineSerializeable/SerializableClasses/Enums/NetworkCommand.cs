@@ -5,5 +5,6 @@
     GetPlayerData,
     Login,
     StartGame,
-    GameEventOption
+    GameEventOption,
+    RequestEventOption
 }

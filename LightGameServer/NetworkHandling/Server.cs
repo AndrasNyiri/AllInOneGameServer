@@ -57,6 +57,8 @@ namespace LightGameServer.NetworkHandling
 
             listener.PeerDisconnectedEvent += (peer, info) =>
             {
+                var match = gameManager.GetMatch(peerInfos[peer].PlayerData.PlayerId);
+                if (match != null) gameManager.StopMatch(match);
                 pendingGamePool.RemoveLeaver(peerInfos[peer]);
                 peerInfos.Remove(peer);
                 Console.WriteLine("Peer disconnected: {0}", peer.EndPoint);
