@@ -16,9 +16,14 @@ namespace LightEngineSerializeable.Utils
                 {
                     case RequestEventType.PushGameObject:
                         var pushRequest = (PushGameObjectRequest)request;
-                        parameters.Add(pushRequest.GameObjectId);
                         parameters.Add(pushRequest.DirectionX);
                         parameters.Add(pushRequest.DirectionY);
+                        break;
+                    case RequestEventType.SetAimDirection:
+                        var aimRequest = (SetAimDirectionRequest)request;
+                        parameters.Add(aimRequest.Active);
+                        parameters.Add(aimRequest.DirectionX);
+                        parameters.Add(aimRequest.DirectionZ);
                         break;
                 }
             }
@@ -39,9 +44,16 @@ namespace LightEngineSerializeable.Utils
                     case RequestEventType.PushGameObject:
                         requestList.Add(new PushGameObjectRequest
                         {
-                            GameObjectId = reader.GetUShort(),
                             DirectionX = reader.GetFloat(),
                             DirectionY = reader.GetFloat()
+                        });
+                        break;
+                    case RequestEventType.SetAimDirection:
+                        requestList.Add(new SetAimDirectionRequest
+                        {
+                            Active = reader.GetBool(),
+                            DirectionX = reader.GetFloat(),
+                            DirectionZ = reader.GetFloat()
                         });
                         break;
                 }

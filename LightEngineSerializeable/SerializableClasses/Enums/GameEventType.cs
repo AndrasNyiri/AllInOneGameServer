@@ -1,5 +1,9 @@
 ﻿public enum GameEventType
 {
     NetworkObjectSpawn,
-    PositionSync
+    PositionSync,
+    PositionGroupSync,
+    GameStart,
+    TurnSync,
+    CanPlay
 }

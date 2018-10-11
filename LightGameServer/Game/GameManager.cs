@@ -31,8 +31,8 @@ namespace LightGameServer.Game
         {
             foreach (var match in _matches)
             {
-                if (match.playerOne != null && match.playerOne.PlayerData != null && match.playerOne.PlayerData.PlayerId == playerId ||
-                    match.playerTwo != null && match.playerTwo.PlayerData != null && match.playerTwo.PlayerData.PlayerId == playerId)
+                if (match.playerOne != null && match.playerOne.PeerInfo.PlayerData != null && match.playerOne.PeerInfo.PlayerData.PlayerId == playerId ||
+                    match.playerTwo != null && match.playerTwo.PeerInfo.PlayerData != null && match.playerTwo.PeerInfo.PlayerData.PlayerId == playerId)
                 {
                     return match;
                 }

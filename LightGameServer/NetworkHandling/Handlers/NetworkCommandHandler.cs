@@ -45,7 +45,7 @@ namespace LightGameServer.NetworkHandling.Handlers
                         {
                             DeviceId = newPlayerData.DeviceId,
                             PlayerData = newPlayerData,
-                            Peer = _peer
+                            NetPeer = _peer
                         };
                         DataSender.New(_peer).SendCommandObject(new CommandObject(CommandObjectCommand.Register, newPlayerData));
                         break;
@@ -62,7 +62,7 @@ namespace LightGameServer.NetworkHandling.Handlers
                         {
                             DeviceId = loginPlayerData.DeviceId,
                             PlayerData = loginPlayerData,
-                            Peer = _peer
+                            NetPeer = _peer
                         };
                         DataSender.New(_peer).SendCommandObject(new CommandObject(CommandObjectCommand.Login, loginPlayerData));
                         break;
@@ -73,8 +73,9 @@ namespace LightGameServer.NetworkHandling.Handlers
                     case NetworkCommand.RequestEventOption:
                         RequestEventSerializer requestSerializer = new RequestEventSerializer();
                         var requests = requestSerializer.Deserialize(_reader);
-                        var playerMatch = Server.Get().gameManager.GetMatch(Server.Get().peerInfos[_peer].PlayerData.PlayerId);
-                        if (playerMatch != null) playerMatch.AddRequests(requests.ToArray());
+                        var requestPeerInfo = Server.Get().peerInfos[_peer];
+                        var playerMatch = Server.Get().gameManager.GetMatch(requestPeerInfo.PlayerData.PlayerId);
+                        if (playerMatch != null) playerMatch.ProcessRequests(requestPeerInfo, requests.ToArray());
                         break;
                 }
             }

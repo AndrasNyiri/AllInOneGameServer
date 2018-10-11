@@ -26,7 +26,40 @@ namespace LightEngineSerializeable.Utils
                         parameters.Add(positionSyncEvent.Id);
                         parameters.Add(positionSyncEvent.PositionX.ToShort());
                         parameters.Add(positionSyncEvent.PositionY.ToShort());
-                        parameters.Add(positionSyncEvent.TimeStamp);
+                        break;
+                    case GameEventType.PositionGroupSync:
+                        var groupPositionSyncEvent = (PositionGroupSyncEvent)gameEvent;
+                        parameters.Add(groupPositionSyncEvent.TimeStamp);
+                        parameters.Add((byte)groupPositionSyncEvent.PositionSyncs.Length);
+                        foreach (var posSync in groupPositionSyncEvent.PositionSyncs)
+                        {
+                            parameters.Add(posSync.Id);
+                            parameters.Add(posSync.PositionX.ToShort());
+                            parameters.Add(posSync.PositionY.ToShort());
+                        }
+                        break;
+                    case GameEventType.GameStart:
+                        var gameStartEvent = (GameStartEvent)gameEvent;
+                        parameters.Add(gameStartEvent.NetworkTime);
+                        parameters.Add((byte)gameStartEvent.PlayerType);
+                        parameters.Add(gameStartEvent.LevelId);
+                        parameters.Add(gameStartEvent.CanPlay);
+                        parameters.Add((byte)gameStartEvent.SpawnEvents.Length);
+                        foreach (var groupSpawnEvent in gameStartEvent.SpawnEvents)
+                        {
+                            parameters.Add(groupSpawnEvent.Id);
+                            parameters.Add((byte)groupSpawnEvent.ObjectType);
+                            parameters.Add(groupSpawnEvent.PositionX.ToShort());
+                            parameters.Add(groupSpawnEvent.PositionY.ToShort());
+                        }
+                        break;
+                    case GameEventType.TurnSync:
+                        var turnSyncEvent = (TurnSyncEvent)gameEvent;
+                        parameters.Add((byte)turnSyncEvent.PlayerType);
+                        break;
+                    case GameEventType.CanPlay:
+                        var canPlayEvent = (CanPlayEvent)gameEvent;
+                        parameters.Add(canPlayEvent.CanPlay);
                         break;
                 }
             }
@@ -59,8 +92,61 @@ namespace LightEngineSerializeable.Utils
                             Id = reader.GetUShort(),
                             PositionX = reader.GetShort().ToFloat(),
                             PositionY = reader.GetShort().ToFloat(),
-                            TimeStamp = reader.GetFloat()
                         });
+                        break;
+                    case GameEventType.PositionGroupSync:
+                        float groupTimeStamp = reader.GetFloat();
+                        List<PositionSyncEvent> posSyncEvents = new List<PositionSyncEvent>();
+                        byte syncCount = reader.GetByte();
+                        for (int j = 0; j < syncCount; j++)
+                        {
+                            posSyncEvents.Add(new PositionSyncEvent
+                            {
+                                Id = reader.GetUShort(),
+                                PositionX = reader.GetShort().ToFloat(),
+                                PositionY = reader.GetShort().ToFloat()
+                            });
+                        }
+                        eventList.Add(new PositionGroupSyncEvent
+                        {
+                            TimeStamp = groupTimeStamp,
+                            PositionSyncs = posSyncEvents.ToArray()
+                        });
+                        break;
+                    case GameEventType.GameStart:
+                        float networkTime = reader.GetFloat();
+                        var playerType = (PlayerType)reader.GetByte();
+                        var levelId = reader.GetByte();
+                        var canPlay = reader.GetBool();
+                        List<NetworkObjectSpawnEvent> spawnEvents = new List<NetworkObjectSpawnEvent>();
+                        byte spawnCount = reader.GetByte();
+                        for (int j = 0; j < spawnCount; j++)
+                        {
+                            spawnEvents.Add(new NetworkObjectSpawnEvent
+                            {
+                                Id = reader.GetUShort(),
+                                ObjectType = (NetworkObjectType)reader.GetByte(),
+                                PositionX = reader.GetShort().ToFloat(),
+                                PositionY = reader.GetShort().ToFloat()
+                            });
+                        }
+                        eventList.Add(new GameStartEvent
+                        {
+                            NetworkTime = networkTime,
+                            PlayerType = playerType,
+                            LevelId = levelId,
+                            CanPlay = canPlay,
+                            SpawnEvents = spawnEvents.ToArray()
+                        });
+                        break;
+                    case GameEventType.TurnSync:
+                        eventList.Add(new TurnSyncEvent
+                        {
+                            PlayerType = (PlayerType)reader.GetByte(),
+                        });
+                        break;
+                    case GameEventType.CanPlay:
+                        eventList.Add(new CanPlayEvent { CanPlay = reader.GetBool() });
                         break;
                 }
             }

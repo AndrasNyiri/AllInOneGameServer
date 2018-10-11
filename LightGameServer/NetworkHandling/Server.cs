@@ -27,7 +27,7 @@ namespace LightGameServer.NetworkHandling
 
         private const string CONNECTION_KEY = "PzM@.5p&k!aZJXH6,mq44R\\ue?%BSSS*t\'N8xxH=L+\"S\'4^N,m5M{`N;>K]7{vUB[R!B\"?>sV!&d~b(G-pYW%5&,6_J5>Hky95.DTG_dhM^x]ph(&.\\.Xc(B.fFGW`e_";
         private const int PORT = 60001;
-        private const int UPDATE_TIME = 15;
+        public const int UPDATE_TIME = 33;
 
         public readonly Dictionary<NetPeer, PeerInfo> peerInfos = new Dictionary<NetPeer, PeerInfo>();
         public readonly PendingGamePool pendingGamePool = new PendingGamePool();
@@ -80,15 +80,15 @@ namespace LightGameServer.NetworkHandling
             var pairs = pendingGamePool.ResolvePendings();
             foreach (var playerPair in pairs)
             {
-                DataSender.New(playerPair.PlayerOne.Peer).SendCommandObject(new CommandObject(CommandObjectCommand.GameStarted, playerPair.PlayerTwo.PlayerData));
-                DataSender.New(playerPair.PlayerTwo.Peer).SendCommandObject(new CommandObject(CommandObjectCommand.GameStarted, playerPair.PlayerOne.PlayerData));
+                DataSender.New(playerPair.PlayerOne.NetPeer).SendCommandObject(new CommandObject(CommandObjectCommand.GameStarted, playerPair.PlayerTwo.PlayerData));
+                DataSender.New(playerPair.PlayerTwo.NetPeer).SendCommandObject(new CommandObject(CommandObjectCommand.GameStarted, playerPair.PlayerOne.PlayerData));
                 gameManager.StartMatch(playerPair.PlayerOne, playerPair.PlayerTwo);
             }
 
             var waiters = pendingGamePool.ResolveWaiters();
             foreach (var waiter in waiters)
             {
-                DataSender.New(waiter.Peer).SendCommandObject(new CommandObject(CommandObjectCommand.GameStarted, new PlayerData { Name = "BOT", LadderScore = waiter.PlayerData.LadderScore }));
+                DataSender.New(waiter.NetPeer).SendCommandObject(new CommandObject(CommandObjectCommand.GameStarted, new PlayerData { Name = "BOT", LadderScore = waiter.PlayerData.LadderScore }));
                 gameManager.StartMatch(waiter);
             }
         }

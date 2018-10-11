@@ -7,7 +7,9 @@ namespace LightGameServer.NetworkHandling.Model
     {
         public PlayerData PlayerData { get; set; }
         public string DeviceId { get; set; }
-        public NetPeer Peer { get; set; }
+        public NetPeer NetPeer { get; set; }
         public DateTime PendingPoolJoinTime { get; set; }
+
+        public bool IsConnected => NetPeer != null && NetPeer.ConnectionState == ConnectionState.Connected;
     }
 }

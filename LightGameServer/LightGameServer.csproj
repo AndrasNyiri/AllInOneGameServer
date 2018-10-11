@@ -68,6 +68,7 @@
     <Compile Include="Game\Components\Scripts\Jump.cs" />
     <Compile Include="Game\Match.cs" />
     <Compile Include="Game\GameManager.cs" />
+    <Compile Include="Game\Model\PlayerInfo.cs" />
     <Compile Include="NetworkHandling\Model\PeerInfo.cs" />
     <Compile Include="NetworkHandling\Handlers\CommandObjectHandler.cs" />
     <Compile Include="NetworkHandling\Handlers\NetworkCommandHandler.cs" />
@@ -78,7 +79,9 @@
     <Compile Include="Run.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
