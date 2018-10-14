@@ -1,6 +1,6 @@
-using LiteNetLib.Utils;
+using LightEngineSerializeable.LiteNetLib.Utils;
 
-namespace LiteNetLib
+namespace LightEngineSerializeable.LiteNetLib
 {
     /// <summary>
     /// Type of message that you receive in OnNetworkReceiveUnconnected event
@@ -105,8 +105,8 @@ namespace LiteNetLib
         public event OnNetworkError NetworkErrorEvent;
         public event OnNetworkReceive NetworkReceiveEvent;
         public event OnNetworkReceiveUnconnected NetworkReceiveUnconnectedEvent;
-        public event OnNetworkLatencyUpdate NetworkLatencyUpdateEvent; 
-         
+        public event OnNetworkLatencyUpdate NetworkLatencyUpdateEvent;
+
         void INetEventListener.OnPeerConnected(NetPeer peer)
         {
             if (PeerConnectedEvent != null)

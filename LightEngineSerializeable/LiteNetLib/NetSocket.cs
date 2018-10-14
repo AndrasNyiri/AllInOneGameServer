@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
-namespace LiteNetLib
+namespace LightEngineSerializeable.LiteNetLib
 {
     internal sealed class NetSocket
     {
@@ -16,7 +16,7 @@ namespace LiteNetLib
         private bool _running;
         private readonly NetManager.OnMessageReceived _onMessageReceived;
 
-        private static readonly IPAddress MulticastAddressV6 = IPAddress.Parse (NetConstants.MulticastGroupIPv6);
+        private static readonly IPAddress MulticastAddressV6 = IPAddress.Parse(NetConstants.MulticastGroupIPv6);
         internal static readonly bool IPv6Support;
         private const int SocketReceivePollTime = 100000;
         private const int SocketSendPollTime = 5000;
@@ -74,7 +74,7 @@ namespace LiteNetLib
                         //10040 - message too long
                         //10054 - remote close (not error)
                         //Just UDP
-                        NetUtils.DebugWrite(ConsoleColor.DarkRed, "[R] Ingored error: {0} - {1}", (int)ex.SocketErrorCode, ex.ToString() );
+                        NetUtils.DebugWrite(ConsoleColor.DarkRed, "[R] Ingored error: {0} - {1}", (int)ex.SocketErrorCode, ex.ToString());
                         continue;
                     }
                     NetUtils.DebugWriteError("[R]Error code: {0} - {1}", (int)ex.SocketErrorCode, ex.ToString());
@@ -95,7 +95,7 @@ namespace LiteNetLib
             _udpSocketv4.ReceiveBufferSize = NetConstants.SocketBufferSize;
             _udpSocketv4.SendBufferSize = NetConstants.SocketBufferSize;
             _udpSocketv4.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.IpTimeToLive, NetConstants.SocketTTL);
-            if(reuseAddress)
+            if (reuseAddress)
                 _udpSocketv4.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 #if !NETCORE
             _udpSocketv4.DontFragment = true;
@@ -114,7 +114,7 @@ namespace LiteNetLib
             {
                 return false;
             }
-            _port = ((IPEndPoint) _udpSocketv4.LocalEndPoint).Port;
+            _port = ((IPEndPoint)_udpSocketv4.LocalEndPoint).Port;
             _running = true;
             _threadv4 = new Thread(ReceiveLogic);
             _threadv4.Name = "SocketThreadv4(" + _port + ")";
@@ -139,12 +139,12 @@ namespace LiteNetLib
                 {
 #if !ENABLE_IL2CPP
                     _udpSocketv6.SetSocketOption(
-                        SocketOptionLevel.IPv6, 
+                        SocketOptionLevel.IPv6,
                         SocketOptionName.AddMembership,
                         new IPv6MulticastOption(MulticastAddressV6));
 #endif
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     // Unity3d throws exception - ignored
                 }
@@ -211,7 +211,7 @@ namespace LiteNetLib
                         return -1;
                     result = _udpSocketv4.SendTo(data, offset, size, SocketFlags.None, remoteEndPoint.EndPoint);
                 }
-                else if(IPv6Support)
+                else if (IPv6Support)
                 {
                     if (!_udpSocketv6.Poll(SocketSendPollTime, SelectMode.SelectWrite))
                         return -1;
@@ -227,7 +227,7 @@ namespace LiteNetLib
                 {
                     NetUtils.DebugWriteError("[S]" + ex);
                 }
-                
+
                 errorCode = (int)ex.SocketErrorCode;
                 return -1;
             }

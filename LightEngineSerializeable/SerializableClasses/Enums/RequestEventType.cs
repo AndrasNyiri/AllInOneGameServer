@@ -1,5 +1,8 @@
-﻿public enum RequestEventType
+﻿namespace LightEngineSerializeable.SerializableClasses.Enums
 {
-    PushGameObject,
-    SetAimDirection
+    public enum RequestEventType
+    {
+        PushGameObject,
+        SetAimDirection
+    }
 }

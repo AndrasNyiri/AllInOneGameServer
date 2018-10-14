@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using LiteNetLib.Utils;
+using LightEngineSerializeable.LiteNetLib.Utils;
 
-namespace LiteNetLib
+namespace LightEngineSerializeable.LiteNetLib
 {
     /// <summary>
     /// Peer connection state
@@ -319,7 +319,7 @@ namespace LiteNetLib
                 {
                     throw new Exception("Unreliable packet size > allowed (" + (mtu - headerSize) + ")");
                 }
-                
+
                 int packetFullSize = mtu - headerSize;
                 int packetDataSize = packetFullSize - NetConstants.FragmentHeaderSize;
 
@@ -427,7 +427,7 @@ namespace LiteNetLib
             //Calc average round trip time
             _rtt += roundTripTime;
             _rttCount++;
-            _avgRtt = _rtt/_rttCount;
+            _avgRtt = _rtt / _rttCount;
 
             //recalc resend delay
             double avgRtt = _avgRtt;
@@ -480,7 +480,7 @@ namespace LiteNetLib
                 }
 
                 NetUtils.DebugWrite("Received all fragments!");
-                NetPacket resultingPacket = _packetPool.Get( p.Property, incomingFragments.TotalSize );
+                NetPacket resultingPacket = _packetPool.Get(p.Property, incomingFragments.TotalSize);
 
                 int resultingPacketOffset = resultingPacket.GetHeaderSize();
                 int firstFragmentSize = fragments[0].Size - dataOffset;
@@ -516,7 +516,7 @@ namespace LiteNetLib
 
         private void ProcessMtuPacket(NetPacket packet)
         {
-            if (packet.Size == 1 || 
+            if (packet.Size == 1 ||
                 packet.RawData[1] >= NetConstants.PossibleMtu.Length)
                 return;
 
@@ -533,7 +533,7 @@ namespace LiteNetLib
                 mtuOkPacket.RawData[1] = packet.RawData[1];
                 SendPacket(mtuOkPacket);
             }
-            else if(packet.RawData[1] > _mtuIdx) //MtuOk
+            else if (packet.RawData[1] > _mtuIdx) //MtuOk
             {
                 lock (_mtuMutex)
                 {
@@ -675,7 +675,7 @@ namespace LiteNetLib
             //2 - merge byte + minimal packet size + datalen(ushort)
             if (_peerListener.MergeEnabled &&
                 CanMerge(packet.Property) &&
-                _mergePos + packet.Size + NetConstants.HeaderSize*2 + 2 < _mtu)
+                _mergePos + packet.Size + NetConstants.HeaderSize * 2 + 2 < _mtu)
             {
                 FastBitConverter.GetBytes(_mergeData.RawData, _mergePos + NetConstants.HeaderSize, (ushort)packet.Size);
                 Buffer.BlockCopy(packet.RawData, 0, _mergeData.RawData, _mergePos + NetConstants.HeaderSize + 2, packet.Size);

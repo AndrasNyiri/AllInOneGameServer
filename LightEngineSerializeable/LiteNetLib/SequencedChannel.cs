@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace LiteNetLib
+namespace LightEngineSerializeable.LiteNetLib
 {
     internal sealed class SequencedChannel
     {
@@ -40,7 +40,7 @@ namespace LiteNetLib
 
         public void ProcessPacket(NetPacket packet)
         {
-            if (packet.Sequence < NetConstants.MaxSequence && 
+            if (packet.Sequence < NetConstants.MaxSequence &&
                 NetUtils.RelativeSequenceNumber(packet.Sequence, _remoteSequence) > 0)
             {
                 _remoteSequence = packet.Sequence;

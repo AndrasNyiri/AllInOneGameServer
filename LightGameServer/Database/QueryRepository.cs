@@ -1,34 +1,25 @@
 ﻿using System.Collections.Generic;
+using LightEngineSerializeable.SerializableClasses.DatabaseModel;
 using LightGameServer.Database.Utils;
+using LightGameServer.Game.Model;
 using MySql.Data.MySqlClient;
 
 namespace LightGameServer.Database
 {
     class QueryRepository
     {
-        #region Singleton
-
-        private static QueryRepository _instance;
-
-        public static QueryRepository Get()
-        {
-            if (_instance == null) _instance = new QueryRepository();
-            return _instance;
-        }
-
-        #endregion
-
-        private readonly DBConnector _dbConnector;
+        private readonly DbConnector _dbConnector;
         private readonly ModelCreator _modelCreator;
 
         public QueryRepository()
         {
-            _dbConnector = new DBConnector();
+            _dbConnector = new DbConnector();
             _modelCreator = new ModelCreator(this);
         }
 
 
         #region Wrappers
+
 
         private List<Dictionary<string, object>> ExecuteSelect(string query, params KeyValuePair<string, object>[] parameters)
         {
@@ -93,15 +84,15 @@ namespace LightGameServer.Database
             string query = @"INSERT INTO player_data (name) VALUES (?name);
                             SELECT LAST_INSERT_ID() as player_id";
 
-            var reader = ExecuteSelect(query, Pair.Of("name", name));
+            var values = ExecuteSelect(query, Pair.Of("name", name));
 
-            ulong newPlayerId = reader[0].Get<ulong>("player_id");
+            ulong newPlayerId = values[0].Get<ulong>("player_id");
 
             query = @"INSERT INTO device_id_player_id (player_id) VALUES (?player_id);
                       SELECT LAST_INSERT_ID() as device_id;";
 
-            reader = ExecuteSelect(query, Pair.Of("player_id", newPlayerId));
-            ulong newDeviceId = reader[0].Get<ulong>("device_id");
+            values = ExecuteSelect(query, Pair.Of("player_id", newPlayerId));
+            ulong newDeviceId = values[0].Get<ulong>("device_id");
 
             return GetPlayerData(Encryptor.EncryptDeviceId(newDeviceId));
         }
@@ -114,10 +105,42 @@ namespace LightGameServer.Database
                              FROM player_data 
                              JOIN device_id_player_id AS d
                              ON d.player_id=player_data.player_id
-                             WHERE d.device_id=?device_id";
+                             WHERE d.device_id=?device_id
+                             LIMIT 1";
 
-            var reader = ExecuteSelect(query, Pair.Of("device_id", decryptedDeviceId));
-            return reader.Count > 0 ? _modelCreator.CreatePlayerData(reader[0]) : null;
+            var values = ExecuteSelect(query, Pair.Of("device_id", decryptedDeviceId));
+            return values.Count > 0 ? _modelCreator.CreatePlayerData(values[0]) : null;
+        }
+
+        public UnitSettings GetUnitSettingsByName(string unitName)
+        {
+            string query = @"SELECT u.id,name,density,radius,push_force,hp,damage
+                             FROM units AS u
+                             INNER JOIN weight AS w ON u.weight=w.id
+                             INNER JOIN size AS sz ON u.size=sz.id
+                             INNER JOIN speed AS sp ON u.speed=sp.id
+                             WHERE u.name=?name 
+                             LIMIT 1;";
+
+            var values = ExecuteSelect(query, Pair.Of("name", unitName));
+            return values.Count > 0 ? _modelCreator.CreateUnitSettings(values[0]) : null;
+        }
+
+        public UnitSettings[] GetAllUnitSettings()
+        {
+            string query = @"SELECT u.id,name,density,radius,push_force,hp,damage
+                             FROM units AS u
+                             INNER JOIN weight AS w ON u.weight=w.id
+                             INNER JOIN size AS sz ON u.size=sz.id
+                             INNER JOIN speed AS sp ON u.speed=sp.id;";
+            var values = ExecuteSelect(query);
+            List<UnitSettings> units = new List<UnitSettings>();
+            foreach (var value in values)
+            {
+                units.Add(_modelCreator.CreateUnitSettings(value));
+            }
+
+            return units.ToArray();
         }
     }
 }

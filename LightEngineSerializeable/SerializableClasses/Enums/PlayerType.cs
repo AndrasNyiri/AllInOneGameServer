@@ -1,5 +1,8 @@
-﻿public enum PlayerType
+﻿namespace LightEngineSerializeable.SerializableClasses.Enums
 {
-    PlayerOne,
-    PlayerTwo
+    public enum PlayerType
+    {
+        PlayerOne,
+        PlayerTwo
+    }
 }

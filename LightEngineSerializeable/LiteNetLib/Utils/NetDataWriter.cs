@@ -1,7 +1,8 @@
 using System;
 using System.Text;
+using LightEngineSerializeable.Utils;
 
-namespace LiteNetLib.Utils
+namespace LightEngineSerializeable.LiteNetLib.Utils
 {
     public class NetDataWriter
     {
@@ -376,6 +377,29 @@ namespace LiteNetLib.Utils
             Encoding.UTF8.GetBytes(value, 0, length, _data, _position);
 
             _position += bytesCount;
+        }
+
+        public NetDataWriter PutObjects(params object[] parameters)
+        {
+            var ts = new TypeSwitch()
+                .Case((string x) => { Put(x); })
+                .Case((int x) => { Put(x); })
+                .Case((float x) => { Put(x); })
+                .Case((long x) => { Put(x); })
+                .Case((ulong x) => { Put(x); })
+                .Case((byte x) => { Put(x); })
+                .Case((short x) => { Put(x); })
+                .Case((ushort x) => { Put(x); })
+                .Case((double x) => { Put(x); })
+                .Case((bool x) => { Put(x); })
+                .Case((byte[] x) => { PutBytesWithLength(x); });
+
+            foreach (var data in parameters)
+            {
+                ts.Switch(data);
+            }
+
+            return this;
         }
     }
 }

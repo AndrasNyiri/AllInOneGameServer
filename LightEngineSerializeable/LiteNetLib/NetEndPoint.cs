@@ -3,7 +3,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 
-namespace LiteNetLib
+namespace LightEngineSerializeable.LiteNetLib
 {
     /// <summary>
     /// Network End Point. Contains ip address and port

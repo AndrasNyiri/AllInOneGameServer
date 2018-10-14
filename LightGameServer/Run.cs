@@ -1,4 +1,8 @@
-﻿using LightGameServer.NetworkHandling;
+﻿using LightEngineSerializeable.LiteNetLib.Utils;
+using LightEngineSerializeable.SerializableClasses;
+using LightEngineSerializeable.SerializableClasses.Enums;
+using LightGameServer.Database;
+using LightGameServer.NetworkHandling;
 using NLog;
 
 namespace LightGameServer
@@ -7,8 +11,14 @@ namespace LightGameServer
     {
         static void Main(string[] args)
         {
-            Server.Get().Start();
-            LogManager.Shutdown();
+            QueryRepository repo = new QueryRepository();
+            DataStore store = new DataStore(repo);
+            var sd = store.Data.Serialize(NetworkCommand.GetStaticData);
+
+            StaticData sdata = StaticData.DeSerialize(new NetDataReader(sd.Data), true);
+
+            //Server.Get().Start();
+            //LogManager.Shutdown();
         }
     }
 }

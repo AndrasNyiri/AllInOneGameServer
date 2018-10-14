@@ -1,4 +1,4 @@
-namespace LiteNetLib
+namespace LightEngineSerializeable.LiteNetLib
 {
     /// <summary>
     /// Sending method type

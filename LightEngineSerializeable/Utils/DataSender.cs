@@ -1,21 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using LiteNetLib;
-using LiteNetLib.Utils;
+using LightEngineSerializeable.LiteNetLib;
+using LightEngineSerializeable.LiteNetLib.Utils;
+using LightEngineSerializeable.SerializableClasses.Enums;
+using LightEngineSerializeable.Utils.Serializers;
 
 namespace LightEngineSerializeable.Utils
 {
     public class DataSender
     {
-        public class TypeSwitch
-        {
-            private readonly Dictionary<Type, Action<object>> _matches = new Dictionary<Type, Action<object>>();
-            public TypeSwitch Case<T>(Action<T> action) { _matches.Add(typeof(T), x => action((T)x)); return this; }
-            public void Switch(object x) { _matches[x.GetType()](x); }
-        }
-
-
         public static DataSender New(NetPeer peer)
         {
             return new DataSender(peer);
@@ -56,21 +49,5 @@ namespace LightEngineSerializeable.Utils
             }
         }
 
-        public void SendCommandObject(CommandObject commandObject, SendOptions sendOption = SendOptions.ReliableOrdered)
-        {
-            try
-            {
-                NetDataWriter writer = new NetDataWriter(true);
-                writer.Put((byte)NetworkCommand.CommandObjectOption);
-                var commandBytes = ObjectSerializationUtil.ObjectToByteArray(commandObject);
-                writer.PutBytesWithLength(commandBytes);
-                _peer.Send(writer, sendOption);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
-            }
-        }
     }
 }

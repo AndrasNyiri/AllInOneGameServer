@@ -1,9 +1,14 @@
-﻿public class PushGameObjectRequest : RequestEvent
-{
-    public float DirectionX { get; set; }
-    public float DirectionY { get; set; }
+﻿using LightEngineSerializeable.SerializableClasses.Enums;
 
-    public PushGameObjectRequest() : base(RequestEventType.PushGameObject)
+namespace LightEngineSerializeable.SerializableClasses.GameModel.RequestEvents
+{
+    public class PushGameObjectRequest : RequestEvent
     {
+        public float DirectionX { get; set; }
+        public float DirectionY { get; set; }
+
+        public PushGameObjectRequest() : base(RequestEventType.PushGameObject)
+        {
+        }
     }
 }

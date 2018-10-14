@@ -11,7 +11,7 @@ using Windows.System.Threading;
 using Windows.System.Threading.Core;
 #endif
 
-namespace LiteNetLib
+namespace LightEngineSerializeable.LiteNetLib
 {
     internal sealed class NetThread
     {

@@ -1,24 +1,40 @@
-﻿using Body = LightEngineCore.PhysicsEngine.Dynamics.Body;
+﻿using LightEngineCore.Loop;
+using LightEngineCore.PhysicsEngine.Collision.ContactSystem;
+using LightEngineCore.PhysicsEngine.Dynamics;
+using Body = LightEngineCore.PhysicsEngine.Dynamics.Body;
 using BodyFactory = LightEngineCore.PhysicsEngine.Factories.BodyFactory;
 using BodyType = LightEngineCore.PhysicsEngine.Dynamics.BodyType;
 using Vector2 = LightEngineCore.PhysicsEngine.Primitives.Vector2;
-using World = LightEngineCore.PhysicsEngine.Dynamics.World;
 
 namespace LightEngineCore.Components
 {
     public class Rigidbody : Behaviour
     {
         public readonly Body body;
-        public Rigidbody(World world, float radius, float density, Vector2 position, BodyType bType)
+        private readonly GameLoop _gameLoop;
+
+        public Rigidbody(GameLoop gameLoop, float radius, float density, Vector2 position, BodyType bType)
         {
-            body = BodyFactory.CreateCircle(world, radius, density, position,
+            _gameLoop = gameLoop;
+            body = BodyFactory.CreateCircle(gameLoop.physicsWorld, radius, density, position,
                 bType, this);
+            body.OnCollision += OnBodyCollision;
         }
 
-        public Rigidbody(World world, float width, float height, float density, Vector2 position, BodyType bType, float rotation = 0f)
+        public Rigidbody(GameLoop gameLoop, float width, float height, float density, Vector2 position, BodyType bType, float rotation = 0f)
         {
-            body = BodyFactory.CreateRectangle(world, width, height, density, position, rotation,
+            _gameLoop = gameLoop;
+            body = BodyFactory.CreateRectangle(gameLoop.physicsWorld, width, height, density, position, rotation,
                 bType, this);
+            body.OnCollision += OnBodyCollision;
         }
+
+
+        private void OnBodyCollision(Fixture myFixture, Fixture otherFixture, Contact contact)
+        {
+            var otherGo = _gameLoop.GetGameObjectByBody(otherFixture.Body);
+            this.gameObject.InvokeCollidedDelegate(otherGo);
+        }
+
     }
 }

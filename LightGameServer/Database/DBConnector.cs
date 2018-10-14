@@ -3,11 +3,11 @@ using MySql.Data.MySqlClient;
 
 namespace LightGameServer.Database
 {
-    class DBConnector
+    class DbConnector
     {
         private string _connectionString;
 
-        public DBConnector()
+        public DbConnector()
         {
             Initialize();
         }

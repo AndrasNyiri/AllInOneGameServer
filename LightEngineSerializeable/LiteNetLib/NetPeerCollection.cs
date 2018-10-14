@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace LiteNetLib
+namespace LightEngineSerializeable.LiteNetLib
 {
     internal sealed class NetPeerCollection
     {

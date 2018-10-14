@@ -1,8 +1,13 @@
-﻿public class TurnSyncEvent : GameEvent
-{
-    public PlayerType PlayerType { get; set; }
+﻿using LightEngineSerializeable.SerializableClasses.Enums;
 
-    public TurnSyncEvent() : base(GameEventType.TurnSync)
+namespace LightEngineSerializeable.SerializableClasses.GameModel.GameEvents
+{
+    public class TurnSyncEvent : GameEvent
     {
+        public PlayerType PlayerType { get; set; }
+
+        public TurnSyncEvent() : base(GameEventType.TurnSync)
+        {
+        }
     }
 }

@@ -1,11 +1,16 @@
-﻿[System.Serializable]
-public class RequestEvent
-{
-    public RequestEventType Type { get; protected set; }
+﻿using LightEngineSerializeable.SerializableClasses.Enums;
 
-    public RequestEvent(RequestEventType type)
+namespace LightEngineSerializeable.SerializableClasses.GameModel
+{
+    [System.Serializable]
+    public class RequestEvent
     {
-        this.Type = type;
+        public RequestEventType Type { get; protected set; }
+
+        public RequestEvent(RequestEventType type)
+        {
+            this.Type = type;
+        }
     }
 }
 

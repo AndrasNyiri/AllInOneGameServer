@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
-using LiteNetLib.Utils;
+using LightEngineSerializeable.LiteNetLib.Utils;
+using LightEngineSerializeable.SerializableClasses.Enums;
+using LightEngineSerializeable.SerializableClasses.GameModel;
+using LightEngineSerializeable.SerializableClasses.GameModel.RequestEvents;
 
-namespace LightEngineSerializeable.Utils
+namespace LightEngineSerializeable.Utils.Serializers
 {
     public class RequestEventSerializer
     {

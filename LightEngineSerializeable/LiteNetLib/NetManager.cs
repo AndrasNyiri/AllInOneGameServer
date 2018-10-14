@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
-using LiteNetLib.Utils;
+using LightEngineSerializeable.LiteNetLib.Utils;
 
-namespace LiteNetLib
+namespace LightEngineSerializeable.LiteNetLib
 {
     /// <summary>
     /// Main class for all network operations. Can be used as client and/or server.

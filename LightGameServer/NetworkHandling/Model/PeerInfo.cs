@@ -1,5 +1,6 @@
 ﻿using System;
-using LiteNetLib;
+using LightEngineSerializeable.LiteNetLib;
+using LightEngineSerializeable.SerializableClasses.DatabaseModel;
 
 namespace LightGameServer.NetworkHandling.Model
 {

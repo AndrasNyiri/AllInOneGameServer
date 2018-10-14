@@ -1,7 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 
-namespace LiteNetLib.Utils
+namespace LightEngineSerializeable.LiteNetLib.Utils
 {
     public class NetDataReader
     {
@@ -301,7 +302,7 @@ namespace LiteNetLib.Utils
         public string GetString(int maxLength)
         {
             int bytesCount = GetInt();
-            if (bytesCount <= 0 || bytesCount > maxLength*2)
+            if (bytesCount <= 0 || bytesCount > maxLength * 2)
             {
                 return string.Empty;
             }
@@ -458,6 +459,26 @@ namespace LiteNetLib.Utils
             _position = 0;
             _dataSize = 0;
             _data = null;
+        }
+
+        public object Get(Type type)
+        {
+            object value = null;
+            var @switch = new Dictionary<Type, Action> {
+                { typeof(string), () => { value = GetString();} },
+                { typeof(int), () => { value = GetInt();} },
+                { typeof(float), () => { value = GetFloat();} },
+                { typeof(ulong), () => { value = GetULong();} },
+                { typeof(long), () => { value = GetLong();} },
+                { typeof(byte), () => { value = GetByte();} },
+                { typeof(short), () => { value = GetShort();} },
+                { typeof(ushort), () => { value = GetUShort();} },
+                { typeof(double), () => { value = GetDouble();} },
+                { typeof(bool), () => { value = GetBool();} },
+                { typeof(byte[]), () => { value = GetBytesWithLength();} }
+            };
+            @switch[type]();
+            return value;
         }
     }
 }

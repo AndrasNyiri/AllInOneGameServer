@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
-using LiteNetLib.Utils;
+using LightEngineSerializeable.LiteNetLib.Utils;
+using LightEngineSerializeable.SerializableClasses.Enums;
+using LightEngineSerializeable.SerializableClasses.GameModel;
+using LightEngineSerializeable.SerializableClasses.GameModel.GameEvents;
 
-namespace LightEngineSerializeable.Utils
+namespace LightEngineSerializeable.Utils.Serializers
 {
     public class GameEventSerializer
     {
@@ -60,6 +63,7 @@ namespace LightEngineSerializeable.Utils
                     case GameEventType.CanPlay:
                         var canPlayEvent = (CanPlayEvent)gameEvent;
                         parameters.Add(canPlayEvent.CanPlay);
+                        parameters.Add(canPlayEvent.SelectedUnitId);
                         break;
                 }
             }
@@ -146,7 +150,7 @@ namespace LightEngineSerializeable.Utils
                         });
                         break;
                     case GameEventType.CanPlay:
-                        eventList.Add(new CanPlayEvent { CanPlay = reader.GetBool() });
+                        eventList.Add(new CanPlayEvent { CanPlay = reader.GetBool(), SelectedUnitId = reader.GetUShort() });
                         break;
                 }
             }

@@ -1,10 +1,15 @@
-﻿public class SetAimDirectionRequest : RequestEvent
-{
-    public bool Active { get; set; }
-    public float DirectionX { get; set; }
-    public float DirectionZ { get; set; }
+﻿using LightEngineSerializeable.SerializableClasses.Enums;
 
-    public SetAimDirectionRequest() : base(RequestEventType.SetAimDirection)
+namespace LightEngineSerializeable.SerializableClasses.GameModel.RequestEvents
+{
+    public class SetAimDirectionRequest : RequestEvent
     {
+        public bool Active { get; set; }
+        public float DirectionX { get; set; }
+        public float DirectionZ { get; set; }
+
+        public SetAimDirectionRequest() : base(RequestEventType.SetAimDirection)
+        {
+        }
     }
 }

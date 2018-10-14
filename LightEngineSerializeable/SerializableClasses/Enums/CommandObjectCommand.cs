@@ -1,7 +1,7 @@
-﻿public enum CommandObjectCommand
+﻿namespace LightEngineSerializeable.SerializableClasses.Enums
 {
-    Register,
-    Login,
-    GetPlayerData,
-    GameStarted
+    public enum CommandObjectCommand
+    {
+       
+    }
 }

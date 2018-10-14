@@ -1,10 +1,15 @@
-﻿[System.Serializable]
-public class GameEvent
-{
-    public GameEventType Type { get; protected set; }
+﻿using LightEngineSerializeable.SerializableClasses.Enums;
 
-    public GameEvent(GameEventType type)
+namespace LightEngineSerializeable.SerializableClasses.GameModel
+{
+    [System.Serializable]
+    public class GameEvent
     {
-        this.Type = type;
+        public GameEventType Type { get; protected set; }
+
+        public GameEvent(GameEventType type)
+        {
+            this.Type = type;
+        }
     }
 }

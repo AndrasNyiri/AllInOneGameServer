@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using LightEngineCore.Components;
 using LightEngineCore.Configuration;
+using LightEngineCore.PhysicsEngine.Dynamics;
 using Vector2 = LightEngineCore.PhysicsEngine.Primitives.Vector2;
 using World = LightEngineCore.PhysicsEngine.Dynamics.World;
 
@@ -104,7 +105,6 @@ namespace LightEngineCore.Loop
         public void RegisterGameObject(GameObject go)
         {
             go.id = _goIdCounter++;
-            go.Assign(this);
             activeObjects.Add(go);
         }
 
@@ -128,6 +128,16 @@ namespace LightEngineCore.Loop
             _invokables.Remove(invokable);
         }
 
+        public GameObject GetGameObjectByBody(Body body)
+        {
+            foreach (var go in activeObjects)
+            {
+                Rigidbody rb = go.GetComponent<Rigidbody>();
+                if (rb != null && rb.body == body) return go;
+            }
+
+            return null;
+        }
 
     }
 }

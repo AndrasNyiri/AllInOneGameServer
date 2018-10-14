@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using LiteNetLib.Utils;
+using LightEngineSerializeable.LiteNetLib.Utils;
 
-namespace LightEngineSerializeable.Utils
+namespace LightEngineSerializeable.Utils.Serializers
 {
     public class ObjectSerializationUtil
     {
@@ -35,16 +34,11 @@ namespace LightEngineSerializeable.Utils
             return obj;
         }
 
-        public static CommandObject CreateCommandObjectFromByteArray(byte[] commandBytes)
-        {
-            return (CommandObject)ByteArrayToObject(commandBytes);
-        }
 
-
-        public static NetDataWriter SerializeObjects(params object[] parameters)
+        public static NetDataWriter SerializeObjects(object[] parameters)
         {
             NetDataWriter writer = new NetDataWriter(true);
-            var ts = new DataSender.TypeSwitch()
+            var ts = new TypeSwitch()
                 .Case((string x) => { writer.Put(x); })
                 .Case((int x) => { writer.Put(x); })
                 .Case((float x) => { writer.Put(x); })

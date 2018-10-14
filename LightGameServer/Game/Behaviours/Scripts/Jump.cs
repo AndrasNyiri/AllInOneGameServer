@@ -2,7 +2,7 @@
 using LightEngineCore.PhysicsEngine.Primitives;
 using MathHelper = LightEngineCore.Common.MathHelper;
 
-namespace LightGameServer.Game.Components.Scripts
+namespace LightGameServer.Game.Behaviours.Scripts
 {
     class Jump : Behaviour
     {

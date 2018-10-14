@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using LiteNetLib.Utils;
+using LightEngineSerializeable.LiteNetLib.Utils;
 
-namespace LiteNetLib
+namespace LightEngineSerializeable.LiteNetLib
 {
     internal class NetPacketPool
     {

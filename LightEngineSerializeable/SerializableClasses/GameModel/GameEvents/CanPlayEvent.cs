@@ -1,7 +1,13 @@
-﻿public class CanPlayEvent : GameEvent
+﻿using LightEngineSerializeable.SerializableClasses.Enums;
+
+namespace LightEngineSerializeable.SerializableClasses.GameModel.GameEvents
 {
-    public bool CanPlay { get; set; }
-    public CanPlayEvent() : base(GameEventType.CanPlay)
+    public class CanPlayEvent : GameEvent
     {
+        public bool CanPlay { get; set; }
+        public ushort SelectedUnitId { get; set; }
+        public CanPlayEvent() : base(GameEventType.CanPlay)
+        {
+        }
     }
 }

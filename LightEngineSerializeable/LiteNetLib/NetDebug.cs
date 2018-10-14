@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LiteNetLib
+namespace LightEngineSerializeable.LiteNetLib
 {
     /// <summary>
     /// Interface to implement for your own logger

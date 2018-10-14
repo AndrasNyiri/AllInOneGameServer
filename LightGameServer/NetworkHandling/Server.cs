@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using LightEngineSerializeable.LiteNetLib;
+using LightEngineSerializeable.SerializableClasses.DatabaseModel;
+using LightEngineSerializeable.SerializableClasses.Enums;
 using LightEngineSerializeable.Utils;
+using LightGameServer.Database;
 using LightGameServer.Game;
 using LightGameServer.NetworkHandling.Handlers;
 using LightGameServer.NetworkHandling.Model;
-using LiteNetLib;
 using NLog;
 
 namespace LightGameServer.NetworkHandling
@@ -29,11 +32,22 @@ namespace LightGameServer.NetworkHandling
         private const int PORT = 60001;
         public const int UPDATE_TIME = 33;
 
-        public readonly Dictionary<NetPeer, PeerInfo> peerInfos = new Dictionary<NetPeer, PeerInfo>();
-        public readonly PendingGamePool pendingGamePool = new PendingGamePool();
-        public readonly GameManager gameManager = new GameManager();
+        public Dictionary<NetPeer, PeerInfo> PeerInfos { get; }
+        public PendingGamePool PendingGamePool { get; }
+        public GameManager GameManager { get; }
+        public QueryRepository QueryRepository { get; }
+        public DataStore DataStore { get; }
 
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+
+        public Server()
+        {
+            PeerInfos = new Dictionary<NetPeer, PeerInfo>();
+            PendingGamePool = new PendingGamePool();
+            GameManager = new GameManager();
+            QueryRepository = new QueryRepository();
+            DataStore = new DataStore(QueryRepository);
+        }
 
 
         public void Start()
@@ -52,15 +66,15 @@ namespace LightGameServer.NetworkHandling
             listener.PeerConnectedEvent += peer =>
             {
                 Console.WriteLine("We got connection: {0}", peer.EndPoint);
-                peerInfos.Add(peer, new PeerInfo());
+                PeerInfos.Add(peer, new PeerInfo());
             };
 
             listener.PeerDisconnectedEvent += (peer, info) =>
             {
-                var match = gameManager.GetMatch(peerInfos[peer].PlayerData.PlayerId);
-                if (match != null) gameManager.StopMatch(match);
-                pendingGamePool.RemoveLeaver(peerInfos[peer]);
-                peerInfos.Remove(peer);
+                var match = GameManager.GetMatch(PeerInfos[peer].PlayerData.PlayerId);
+                if (match != null) GameManager.StopMatch(match);
+                PendingGamePool.RemoveLeaver(PeerInfos[peer]);
+                PeerInfos.Remove(peer);
                 Console.WriteLine("Peer disconnected: {0}", peer.EndPoint);
             };
 
@@ -77,25 +91,25 @@ namespace LightGameServer.NetworkHandling
 
         private void ReslovePendingPool()
         {
-            var pairs = pendingGamePool.ResolvePendings();
+            var pairs = PendingGamePool.ResolvePendings();
             foreach (var playerPair in pairs)
             {
-                DataSender.New(playerPair.PlayerOne.NetPeer).SendCommandObject(new CommandObject(CommandObjectCommand.GameStarted, playerPair.PlayerTwo.PlayerData));
-                DataSender.New(playerPair.PlayerTwo.NetPeer).SendCommandObject(new CommandObject(CommandObjectCommand.GameStarted, playerPair.PlayerOne.PlayerData));
-                gameManager.StartMatch(playerPair.PlayerOne, playerPair.PlayerTwo);
+                DataSender.New(playerPair.PlayerOne.NetPeer).Send(playerPair.PlayerTwo.PlayerData.Serialize(NetworkCommand.GameStarted), SendOptions.ReliableOrdered);
+                DataSender.New(playerPair.PlayerTwo.NetPeer).Send(playerPair.PlayerOne.PlayerData.Serialize(NetworkCommand.GameStarted), SendOptions.ReliableOrdered);
+                GameManager.StartMatch(playerPair.PlayerOne, playerPair.PlayerTwo);
             }
 
-            var waiters = pendingGamePool.ResolveWaiters();
+            var waiters = PendingGamePool.ResolveWaiters();
             foreach (var waiter in waiters)
             {
-                DataSender.New(waiter.NetPeer).SendCommandObject(new CommandObject(CommandObjectCommand.GameStarted, new PlayerData { Name = "BOT", LadderScore = waiter.PlayerData.LadderScore }));
-                gameManager.StartMatch(waiter);
+                DataSender.New(waiter.NetPeer).Send(new PlayerData { Name = "BOT", LadderScore = waiter.PlayerData.LadderScore }.Serialize(NetworkCommand.GameStarted), SendOptions.ReliableOrdered);
+                GameManager.StartMatch(waiter);
             }
         }
 
         public void AddToPendingPool(NetPeer peer)
         {
-            pendingGamePool.AddPlayer(peerInfos[peer]);
+            PendingGamePool.AddPlayer(PeerInfos[peer]);
         }
     }
 }

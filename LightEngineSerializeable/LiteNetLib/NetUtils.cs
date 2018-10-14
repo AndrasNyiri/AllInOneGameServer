@@ -1,16 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 #if WINRT && !UNITY_EDITOR
 using Windows.Networking;
 using Windows.Networking.Connectivity;
 #else
-using System.Net;
-using System.Net.Sockets;
-using System.Net.NetworkInformation;
+
 #endif
 
-namespace LiteNetLib
+namespace LightEngineSerializeable.LiteNetLib
 {
 #if WINRT && !UNITY_EDITOR
     public enum ConsoleColor

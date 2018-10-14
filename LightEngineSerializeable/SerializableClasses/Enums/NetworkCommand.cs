@@ -1,10 +1,15 @@
-﻿public enum NetworkCommand
+﻿namespace LightEngineSerializeable.SerializableClasses.Enums
 {
-    CommandObjectOption,
-    Register,
-    GetPlayerData,
-    Login,
-    StartGame,
-    GameEventOption,
-    RequestEventOption
+    public enum NetworkCommand
+    {
+        CommandObjectOption,
+        Register,
+        GetPlayerData,
+        Login,
+        StartGame,
+        GameEventOption,
+        RequestEventOption,
+        GameStarted,
+        GetStaticData
+    }
 }

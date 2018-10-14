@@ -1,7 +1,7 @@
 using System;
-using LiteNetLib.Utils;
+using LightEngineSerializeable.LiteNetLib.Utils;
 
-namespace LiteNetLib
+namespace LightEngineSerializeable.LiteNetLib
 {
     internal enum PacketProperty : byte
     {
@@ -152,7 +152,7 @@ namespace LiteNetLib
             //Reading property
             byte property = (byte)(data[start] & 0x7F);
             bool fragmented = (data[start] & 0x80) != 0;
-            int headerSize = GetHeaderSize((PacketProperty) property);
+            int headerSize = GetHeaderSize((PacketProperty)property);
 
             if (property > LastProperty ||
                 packetSize > NetConstants.PacketSizeLimit ||

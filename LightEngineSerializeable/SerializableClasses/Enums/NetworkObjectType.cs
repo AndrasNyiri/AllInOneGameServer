@@ -1,7 +1,10 @@
-﻿public enum NetworkObjectType
+﻿namespace LightEngineSerializeable.SerializableClasses.Enums
 {
-    Caster1,
-    Caster2,
-    Caster3,
-    Caster4
+    public enum NetworkObjectType
+    {
+        Caster1,
+        Caster2,
+        Caster3,
+        Caster4
+    }
 }

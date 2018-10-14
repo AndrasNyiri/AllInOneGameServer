@@ -2,13 +2,14 @@
 #define USE_WINRT
 #endif
 using System;
-using System.Reflection;
 using System.Collections.Generic;
+using System.Reflection;
+
 #if USE_WINRT
 using System.Linq;
 #endif
 
-namespace LiteNetLib.Utils
+namespace LightEngineSerializeable.LiteNetLib.Utils
 {
     public interface INetSerializable
     {

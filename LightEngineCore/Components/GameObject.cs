@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using LightEngineCore.Configuration;
 using LightEngineCore.Loop;
+using LightEngineCore.PhysicsEngine.Collision.ContactSystem;
+using LightEngineCore.PhysicsEngine.Dynamics;
 using Vector2 = LightEngineCore.PhysicsEngine.Primitives.Vector2;
 
 namespace LightEngineCore.Components
@@ -12,7 +14,6 @@ namespace LightEngineCore.Components
         public delegate void OnBelowGroundDelegate();
 
         public OnCollidedWithGameObjectDelegate onCollidedWithGameObject;
-        public OnBelowGroundDelegate onBelowGround;
 
         public GameLoop gameLoop;
         public List<Behaviour> components = new List<Behaviour>();
@@ -20,8 +21,10 @@ namespace LightEngineCore.Components
         public string name;
         public ulong id;
 
-        public GameObject(string name = "", params Behaviour[] initBehaviours)
+        public GameObject(GameLoop gameLoop, string name = "", params Behaviour[] initBehaviours)
         {
+            this.gameLoop = gameLoop;
+            gameLoop.RegisterGameObject(this);
             this.name = name;
             if (string.IsNullOrEmpty(name))
             {
@@ -32,6 +35,7 @@ namespace LightEngineCore.Components
                 AddComponent(component);
             }
         }
+
 
         public void Assign(GameLoop gl)
         {
@@ -109,12 +113,8 @@ namespace LightEngineCore.Components
             if (onCollidedWithGameObject != null) onCollidedWithGameObject.Invoke(go);
         }
 
-        public void InvokeOnBelowGroundDelegate()
-        {
-            if (onBelowGround != null) onBelowGround.Invoke();
-        }
 
-        public virtual void Destory()
+        public virtual void Destroy()
         {
             gameLoop.Destroy(this);
         }

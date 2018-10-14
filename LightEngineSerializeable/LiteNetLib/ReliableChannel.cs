@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace LiteNetLib
+namespace LightEngineSerializeable.LiteNetLib
 {
     internal sealed class ReliableChannel
     {
@@ -17,7 +17,7 @@ namespace LiteNetLib
             {
                 if (Prev != null)
                 {
-                    Prev.Next = Next; 
+                    Prev.Next = Next;
                 }
                 if (Next != null)
                 {
@@ -125,7 +125,7 @@ namespace LiteNetLib
                 if ((acksData[currentByte] & (1 << currentBit)) == 0)
                 {
 #if STATS_ENABLED || DEBUG
-                    if(_pendingPackets[ackSequence % _windowSize].TimeStamp.HasValue)
+                    if (_pendingPackets[ackSequence % _windowSize].TimeStamp.HasValue)
                         _peer.Statistics.PacketLoss++;
 #endif
                     //NetUtils.DebugWrite(ConsoleColor.Cyan, "[PA] SKIP FALSE: " + ackSequence);
@@ -179,7 +179,7 @@ namespace LiteNetLib
                 {
                     PendingPacket pendingPacket = _pendingPackets[_localSeqence % _windowSize];
                     pendingPacket.Packet = _outgoingPackets.Dequeue();
-                    pendingPacket.Packet.Sequence = (ushort) _localSeqence;
+                    pendingPacket.Packet.Sequence = (ushort)_localSeqence;
                     if (_headPendingPacket != null)
                     {
                         _headPendingPacket.Next = pendingPacket;
@@ -202,7 +202,7 @@ namespace LiteNetLib
                 return;
             }
             //send
-            PendingPacket currentPacket = _headPendingPacket;  
+            PendingPacket currentPacket = _headPendingPacket;
             do
             {
                 if (currentPacket.TimeStamp.HasValue) //check send time
@@ -246,7 +246,7 @@ namespace LiteNetLib
             int currentAckIndex = startAckIndex;
             int currentBit = 0;
             int currentByte = NetConstants.SequencedHeaderSize;
-            do 
+            do
             {
                 if (_outgoingAcks[currentAckIndex])
                 {
@@ -286,7 +286,7 @@ namespace LiteNetLib
             }
 
             //Drop bad packets
-            if(relate < 0)
+            if (relate < 0)
             {
                 //Too old packet doesn't ack
                 NetUtils.DebugWrite("[RR]ReliableInOrder too old");
@@ -339,7 +339,7 @@ namespace LiteNetLib
                 if (_ordered)
                 {
                     NetPacket p;
-                    while ( (p = _receivedPackets[_remoteSequence % _windowSize]) != null)
+                    while ((p = _receivedPackets[_remoteSequence % _windowSize]) != null)
                     {
                         //process holded packet
                         _receivedPackets[_remoteSequence % _windowSize] = null;

@@ -1,9 +1,12 @@
-﻿public enum GameEventType
+﻿namespace LightEngineSerializeable.SerializableClasses.Enums
 {
-    NetworkObjectSpawn,
-    PositionSync,
-    PositionGroupSync,
-    GameStart,
-    TurnSync,
-    CanPlay
+    public enum GameEventType
+    {
+        NetworkObjectSpawn,
+        PositionSync,
+        PositionGroupSync,
+        GameStart,
+        TurnSync,
+        CanPlay
+    }
 }
