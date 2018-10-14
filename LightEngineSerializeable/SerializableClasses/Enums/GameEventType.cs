@@ -3,6 +3,7 @@
     public enum GameEventType
     {
         NetworkObjectSpawn,
+        NetworkObjectDestroy,
         PositionSync,
         PositionGroupSync,
         GameStart,

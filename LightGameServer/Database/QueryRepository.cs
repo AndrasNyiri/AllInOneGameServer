@@ -128,7 +128,7 @@ namespace LightGameServer.Database
 
         public UnitSettings[] GetAllUnitSettings()
         {
-            string query = @"SELECT u.id,name,density,radius,push_force,hp,damage
+            string query = @"SELECT u.id,name,density,radius,push_force,hp,damage,projectile_damage
                              FROM units AS u
                              INNER JOIN weight AS w ON u.weight=w.id
                              INNER JOIN size AS sz ON u.size=sz.id
@@ -141,6 +141,21 @@ namespace LightGameServer.Database
             }
 
             return units.ToArray();
+        }
+
+        public SkillSettings[] GetAllSkillSettings()
+        {
+            string query = @"SELECT *
+                             FROM skills";
+
+            var values = ExecuteSelect(query);
+            List<SkillSettings> skills = new List<SkillSettings>();
+            foreach (var value in values)
+            {
+                skills.Add(_modelCreator.CreateSkillSettings(value));
+            }
+
+            return skills.ToArray();
         }
     }
 }

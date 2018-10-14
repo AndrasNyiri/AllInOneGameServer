@@ -2,7 +2,9 @@
 using LightEngineCore.Components;
 using LightEngineCore.PhysicsEngine.Dynamics;
 using LightEngineCore.PhysicsEngine.Primitives;
+using LightEngineSerializeable.LiteNetLib;
 using LightEngineSerializeable.SerializableClasses.DatabaseModel;
+using LightEngineSerializeable.SerializableClasses.GameModel.GameEvents;
 using LightGameServer.Game.Model;
 
 namespace LightGameServer.Game.Prefabs.Units
@@ -19,9 +21,14 @@ namespace LightGameServer.Game.Prefabs.Units
         public PlayerInfo Player { get; }
         public bool IsAttacking { get; set; }
         public short Hp { get; set; }
-        public short Damage
+        public short MeeleDamage
         {
             get { return Settings.Damage; }
+        }
+
+        public short ProjectileDamage
+        {
+            get { return Settings.ProjectileDamage; }
         }
 
         public short PushForce
@@ -49,7 +56,7 @@ namespace LightGameServer.Game.Prefabs.Units
             this.onCollidedWithGameObject += OnCollidedWithGameObject;
         }
 
-        private void OnCollidedWithGameObject(GameObject go)
+        public virtual void OnCollidedWithGameObject(GameObject go)
         {
             if (!IsAttacking) return;
             if (go is Unit)
@@ -58,6 +65,17 @@ namespace LightGameServer.Game.Prefabs.Units
                 Console.WriteLine("I " + name + ", should attack " + go.name);
             }
 
+        }
+
+        public virtual void PlayAbility(Vector2 direction)
+        {
+
+        }
+
+        public override void Destroy()
+        {
+            MyMatch.SendGameEventToPlayers(SendOptions.ReliableOrdered, new NetworkObjectDestroyEvent { Id = (ushort)id });
+            base.Destroy();
         }
     }
 }

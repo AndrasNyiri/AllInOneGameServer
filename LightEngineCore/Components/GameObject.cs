@@ -15,16 +15,16 @@ namespace LightEngineCore.Components
 
         public OnCollidedWithGameObjectDelegate onCollidedWithGameObject;
 
-        public GameLoop gameLoop;
+        public GameLoop match;
         public List<Behaviour> components = new List<Behaviour>();
 
         public string name;
         public ulong id;
 
-        public GameObject(GameLoop gameLoop, string name = "", params Behaviour[] initBehaviours)
+        public GameObject(GameLoop match, string name = "", params Behaviour[] initBehaviours)
         {
-            this.gameLoop = gameLoop;
-            gameLoop.RegisterGameObject(this);
+            this.match = match;
+            match.RegisterGameObject(this);
             this.name = name;
             if (string.IsNullOrEmpty(name))
             {
@@ -39,7 +39,7 @@ namespace LightEngineCore.Components
 
         public void Assign(GameLoop gl)
         {
-            this.gameLoop = gl;
+            this.match = gl;
         }
 
         public virtual void Update()
@@ -116,7 +116,7 @@ namespace LightEngineCore.Components
 
         public virtual void Destroy()
         {
-            gameLoop.Destroy(this);
+            match.Destroy(this);
         }
 
     }

@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Globalization;
 using LightEngineSerializeable.SerializableClasses;
 using LightEngineSerializeable.SerializableClasses.DatabaseModel;
-using LightGameServer.Game.Model;
-using LightGameServer.NetworkHandling;
 
 namespace LightGameServer.Database
 {
@@ -15,7 +13,9 @@ namespace LightGameServer.Database
         {
             Data = new StaticData
             {
-                UnitSettings = queryRepository.GetAllUnitSettings()
+                TimeStamp = DateTime.UtcNow.ToString(CultureInfo.CurrentCulture),
+                UnitSettings = queryRepository.GetAllUnitSettings(),
+                SkillSettings = queryRepository.GetAllSkillSettings()
             };
         }
 
@@ -24,6 +24,15 @@ namespace LightGameServer.Database
             foreach (var unitSetting in Data.UnitSettings)
             {
                 if (unitSetting.Name == unitName) return unitSetting;
+            }
+            return null;
+        }
+
+        public SkillSettings GetSkillSettings(string skillName)
+        {
+            foreach (var skillSetting in Data.SkillSettings)
+            {
+                if (skillSetting.Name == skillName) return skillSetting;
             }
             return null;
         }

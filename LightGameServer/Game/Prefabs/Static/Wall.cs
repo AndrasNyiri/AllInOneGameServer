@@ -8,8 +8,8 @@ namespace LightGameServer.Game.Prefabs.Static
 {
     class Wall : GameObject
     {
-        public Wall(GameLoop gameLoop, string name, float width, float height, Vector2 pos, float rot = 0)
-            : base(gameLoop, name, new Rigidbody(gameLoop, width, height, 1f, pos, BodyType.Static, rot.ToRadians()))
+        public Wall(GameLoop match, string name, float width, float height, Vector2 pos, float rot = 0)
+            : base(match, name, new Rigidbody(match, width, height, 1f, pos, BodyType.Static, rot.ToRadians()))
         {
         }
     }

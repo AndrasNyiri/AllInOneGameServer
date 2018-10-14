@@ -5,6 +5,7 @@
         Caster1,
         Caster2,
         Caster3,
-        Caster4
+        Caster4,
+        FireBall
     }
 }

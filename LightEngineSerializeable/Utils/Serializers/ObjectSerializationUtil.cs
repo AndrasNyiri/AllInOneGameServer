@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using LightEngineSerializeable.LiteNetLib.Utils;
+using LightEngineSerializeable.SerializableClasses.Enums;
 
 namespace LightEngineSerializeable.Utils.Serializers
 {

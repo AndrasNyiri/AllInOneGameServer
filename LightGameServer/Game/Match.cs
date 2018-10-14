@@ -15,6 +15,7 @@ using LightEngineSerializeable.SerializableClasses.GameModel.GameEvents;
 using LightEngineSerializeable.SerializableClasses.GameModel.RequestEvents;
 using LightEngineSerializeable.Utils.Serializers;
 using LightGameServer.Game.Model;
+using LightGameServer.Game.Prefabs.Skills;
 using LightGameServer.Game.Prefabs.Static;
 using LightGameServer.Game.Prefabs.Units;
 using LightGameServer.NetworkHandling;
@@ -66,11 +67,11 @@ namespace LightGameServer.Game
             {
                 switch (request.Type)
                 {
-                    case RequestEventType.PushGameObject:
+                    case RequestEventType.PlayUnitAbility:
                         if (GetPlayerInTurn().PeerInfo != peerInfo || !GetPlayerInTurn().CanPlay) return;
-                        var pushRequest = (PushGameObjectRequest)request;
-                        if (new Vector2(pushRequest.DirectionX, pushRequest.DirectionY) == Vector2.Zero) continue;
-                        PushGameObject(GetPlayerInTurn().GetSelectedGoId(), new Vector2(pushRequest.DirectionX, pushRequest.DirectionY));
+                        var abilityRequest = (PlayUnitAbilityRequest)request;
+                        if (new Vector2(abilityRequest.DirectionX, abilityRequest.DirectionY) == Vector2.Zero) continue;
+                        PlayUnitAbility(new Vector2(abilityRequest.DirectionX, abilityRequest.DirectionY));
                         break;
                     case RequestEventType.SetAimDirection:
                         RedirectRequest(SendOptions.Sequenced, request, GetOppositePeer(peerInfo));
@@ -79,16 +80,12 @@ namespace LightGameServer.Game
             }
         }
 
-        private void PushGameObject(ushort id, Vector2 direction)
+        private void PlayUnitAbility(Vector2 direction)
         {
             SetAttackingFlag();
             _timerRunning = false;
             _sendPositions = true;
-            var gameObjectToPush = GetGameObject(id);
-            Vector2 pushDirection = direction;
-            pushDirection.Normalize();
-            float pushForce = GetPlayerInTurn().GetSelectedUnit().PushForce;
-            gameObjectToPush.GetComponent<Rigidbody>().body.ApplyLinearImpulse(pushDirection * pushForce);
+            GetPlayerInTurn().GetSelectedUnit().PlayAbility(direction);
             GetPlayerInTurn().IncrementDeckIndex();
             GetPlayerInTurn().CanPlay = false;
             SwitchTurns();
@@ -190,9 +187,9 @@ namespace LightGameServer.Game
                     spawnEvents.Add(new NetworkObjectSpawnEvent
                     {
                         Id = (ushort)go.id,
-                        ObjectType = objectType,
-                        PositionX = go.Pos.X,
-                        PositionY = go.Pos.Y
+                        ObjectType = (byte)objectType,
+                        PositionX = go.Pos.X.ToShort(),
+                        PositionY = go.Pos.Y.ToShort()
                     });
                 }
             }
@@ -206,7 +203,7 @@ namespace LightGameServer.Game
             SendGameEventToPlayers(SendOptions.ReliableOrdered,
                 new TurnSyncEvent
                 {
-                    PlayerType = _playerTurn
+                    PlayerType = (byte)_playerTurn
                 });
         }
 
@@ -241,6 +238,11 @@ namespace LightGameServer.Game
         {
             foreach (var go in gameLoop.activeObjects)
             {
+                if (go is Skill)
+                {
+                    go.Destroy();
+                    continue;
+                }
                 var rb = go.GetComponent<Rigidbody>();
                 if (rb != null) rb.body.LinearVelocity = Vector2.Zero;
             }
@@ -267,11 +269,12 @@ namespace LightGameServer.Game
         private void PlayBotMove()
         {
             var dir = new Vector2(MathHelper.NextFloat(-1, 1f), MathHelper.NextFloat(-1, 1f));
+            dir.Normalize();
             RedirectRequest(SendOptions.ReliableOrdered, new SetAimDirectionRequest { Active = true, DirectionX = dir.X, DirectionZ = dir.Y }, GetPlayerNotInTurn().PeerInfo.NetPeer);
             gameLoop.AddInvokable(new Invokable(() =>
             {
                 RedirectRequest(SendOptions.ReliableOrdered, new SetAimDirectionRequest { Active = false }, GetPlayerNotInTurn().PeerInfo.NetPeer);
-                PushGameObject(GetPlayerInTurn().GetSelectedGoId(), dir);
+                PlayUnitAbility(dir);
             }, 2000f, true));
         }
 
@@ -316,8 +319,8 @@ namespace LightGameServer.Game
                         posEvents.Add(new PositionSyncEvent
                         {
                             Id = (ushort)go.id,
-                            PositionX = pos.X,
-                            PositionY = pos.Y,
+                            PositionX = pos.X.ToShort(),
+                            PositionY = pos.Y.ToShort(),
                         });
                     }
                 }
@@ -342,7 +345,7 @@ namespace LightGameServer.Game
             if (player.PeerInfo.IsConnected) DataSender.New(player.PeerInfo.NetPeer).Send(writer, SendOptions.ReliableOrdered);
         }
 
-        private void SendGameEventToPlayers(SendOptions sendOption, params GameEvent[] gameEvents)
+        public void SendGameEventToPlayers(SendOptions sendOption, params GameEvent[] gameEvents)
         {
             NetDataWriter writer = _gameEventSerializer.Serialize(gameEvents);
             if (playerOne.PeerInfo.IsConnected) DataSender.New(playerOne.PeerInfo.NetPeer).Send(writer, sendOption);

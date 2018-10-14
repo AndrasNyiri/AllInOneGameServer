@@ -71,6 +71,7 @@
     <Compile Include="Game\GameManager.cs" />
     <Compile Include="Game\Model\PlayerInfo.cs" />
     <Compile Include="Game\Prefabs\Skills\FireBall.cs" />
+    <Compile Include="Game\Prefabs\Skills\Skill.cs" />
     <Compile Include="Game\Prefabs\Static\Wall.cs" />
     <Compile Include="Game\Prefabs\Units\Unit.cs" />
     <Compile Include="Game\Prefabs\Units\Caster1.cs" />

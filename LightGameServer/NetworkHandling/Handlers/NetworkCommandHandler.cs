@@ -1,6 +1,7 @@
 ﻿using System;
 using LightEngineSerializeable.LiteNetLib;
 using LightEngineSerializeable.LiteNetLib.Utils;
+using LightEngineSerializeable.SerializableClasses;
 using LightEngineSerializeable.SerializableClasses.DatabaseModel;
 using LightEngineSerializeable.SerializableClasses.Enums;
 using LightEngineSerializeable.Utils;
@@ -73,6 +74,18 @@ namespace LightGameServer.NetworkHandling.Handlers
                         var requestPeerInfo = Server.Get().PeerInfos[_peer];
                         var playerMatch = Server.Get().GameManager.GetMatch(requestPeerInfo.PlayerData.PlayerId);
                         if (playerMatch != null) playerMatch.ProcessRequests(requestPeerInfo, requests.ToArray());
+                        break;
+                    case NetworkCommand.GetStaticData:
+                        StaticData storedStaticData = Server.Get().DataStore.Data;
+                        string clientStaticDataTimeStamp = _reader.GetString();
+                        if (clientStaticDataTimeStamp != storedStaticData.TimeStamp)
+                        {
+                            DataSender.New(_peer).Send(storedStaticData.Serialize(NetworkCommand.GetStaticData, false), SendOptions.ReliableOrdered);
+                        }
+                        else
+                        {
+                            DataSender.New(_peer).Send(NetworkCommand.GetStaticData, SendOptions.ReliableOrdered, true);
+                        }
                         break;
                 }
             }

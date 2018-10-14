@@ -14,6 +14,10 @@ namespace LightEngineSerializeable.SerializableClasses.DatabaseModel
             List<object> parameters = new List<object>();
             foreach (var property in GetType().GetProperties())
             {
+                if (property.GetGetMethod() == null || !property.GetGetMethod().IsPublic || property.GetSetMethod() == null || !property.GetSetMethod().IsPublic)
+                {
+                    continue;
+                }
                 var obj = property.GetValue(this, null);
                 if (obj == null) obj = "";
                 parameters.Add(obj);
@@ -22,11 +26,16 @@ namespace LightEngineSerializeable.SerializableClasses.DatabaseModel
             return parameters;
         }
 
-        public virtual NetDataWriter Serialize(NetworkCommand command)
+        public virtual NetDataWriter Serialize(NetworkCommand command, params object[] extra)
         {
             List<object> parameters = new List<object> { (byte)command };
+            parameters.AddRange(extra);
             foreach (var property in GetType().GetProperties())
             {
+                if (property.GetGetMethod() == null || !property.GetGetMethod().IsPublic || property.GetSetMethod() == null || !property.GetSetMethod().IsPublic)
+                {
+                    continue;
+                }
                 var obj = property.GetValue(this, null);
                 if (obj == null) obj = "";
                 parameters.Add(obj);
@@ -40,6 +49,10 @@ namespace LightEngineSerializeable.SerializableClasses.DatabaseModel
             T model = new T();
             foreach (var property in model.GetType().GetProperties())
             {
+                if (property.GetGetMethod() == null || !property.GetGetMethod().IsPublic || property.GetSetMethod() == null || !property.GetSetMethod().IsPublic)
+                {
+                    continue;
+                }
                 property.SetValue(model, Convert.ChangeType(reader.Get(property.PropertyType), property.PropertyType), null);
             }
             return model;

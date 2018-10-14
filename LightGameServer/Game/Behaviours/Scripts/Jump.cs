@@ -12,9 +12,9 @@ namespace LightGameServer.Game.Behaviours.Scripts
 
         public override void Update()
         {
-            if (this.gameObject.gameLoop.Time > _jumpTime && this.gameObject.GetComponent<Rigidbody>().body.LinearVelocity.Length() < 0.3f)
+            if (this.gameObject.match.Time > _jumpTime && this.gameObject.GetComponent<Rigidbody>().body.LinearVelocity.Length() < 0.3f)
             {
-                _jumpTime = this.gameObject.gameLoop.Time + jumpDelay;
+                _jumpTime = this.gameObject.match.Time + jumpDelay;
                 this.gameObject.GetComponent<Rigidbody>().body.ApplyLinearImpulse(new Vector2(MathHelper.NextFloat(-15f, 15f), MathHelper.NextFloat(-15f, 15f)));
             }
         }

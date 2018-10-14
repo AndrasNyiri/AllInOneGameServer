@@ -2,13 +2,14 @@
 
 namespace LightEngineSerializeable.SerializableClasses.GameModel.RequestEvents
 {
-    public class PushGameObjectRequest : RequestEvent
+    public class PlayUnitAbilityRequest : RequestEvent
     {
         public float DirectionX { get; set; }
         public float DirectionY { get; set; }
 
-        public PushGameObjectRequest() : base(RequestEventType.PushGameObject)
+        public PlayUnitAbilityRequest() : base(RequestEventType.PlayUnitAbility)
         {
+
         }
     }
 }

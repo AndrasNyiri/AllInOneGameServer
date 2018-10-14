@@ -17,8 +17,8 @@ namespace LightEngineSerializeable.Utils.Serializers
                 parameters.Add((byte)request.Type);
                 switch (request.Type)
                 {
-                    case RequestEventType.PushGameObject:
-                        var pushRequest = (PushGameObjectRequest)request;
+                    case RequestEventType.PlayUnitAbility:
+                        var pushRequest = (PlayUnitAbilityRequest)request;
                         parameters.Add(pushRequest.DirectionX);
                         parameters.Add(pushRequest.DirectionY);
                         break;
@@ -44,8 +44,8 @@ namespace LightEngineSerializeable.Utils.Serializers
                 RequestEventType requestType = (RequestEventType)reader.GetByte();
                 switch (requestType)
                 {
-                    case RequestEventType.PushGameObject:
-                        requestList.Add(new PushGameObjectRequest
+                    case RequestEventType.PlayUnitAbility:
+                        requestList.Add(new PlayUnitAbilityRequest
                         {
                             DirectionX = reader.GetFloat(),
                             DirectionY = reader.GetFloat()

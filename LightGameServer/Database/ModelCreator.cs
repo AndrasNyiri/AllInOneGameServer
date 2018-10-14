@@ -48,7 +48,19 @@ namespace LightGameServer.Database
                 Radius = value.Get<float>("radius"),
                 PushForce = value.Get<short>("push_force"),
                 Hp = value.Get<short>("hp"),
-                Damage = value.Get<short>("damage")
+                Damage = value.Get<short>("damage"),
+                ProjectileDamage = value.Get<short>("projectile_damage")
+            };
+        }
+
+        public SkillSettings CreateSkillSettings(Dictionary<string, object> value)
+        {
+            return new SkillSettings
+            {
+                Id = value.Get<short>("id"),
+                Name = value.Get<string>("name"),
+                Radius = value.Get<float>("radius"),
+                Density = value.Get<float>("density")
             };
         }
     }

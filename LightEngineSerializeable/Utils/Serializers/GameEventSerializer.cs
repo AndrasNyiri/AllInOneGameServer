@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using LightEngineSerializeable.LiteNetLib.Utils;
+using LightEngineSerializeable.SerializableClasses.DatabaseModel;
 using LightEngineSerializeable.SerializableClasses.Enums;
 using LightEngineSerializeable.SerializableClasses.GameModel;
 using LightEngineSerializeable.SerializableClasses.GameModel.GameEvents;
@@ -17,19 +18,6 @@ namespace LightEngineSerializeable.Utils.Serializers
                 parameters.Add((byte)gameEvent.Type);
                 switch (gameEvent.Type)
                 {
-                    case GameEventType.NetworkObjectSpawn:
-                        var spawnEvent = (NetworkObjectSpawnEvent)gameEvent;
-                        parameters.Add(spawnEvent.Id);
-                        parameters.Add((byte)spawnEvent.ObjectType);
-                        parameters.Add(spawnEvent.PositionX.ToShort());
-                        parameters.Add(spawnEvent.PositionY.ToShort());
-                        break;
-                    case GameEventType.PositionSync:
-                        var positionSyncEvent = (PositionSyncEvent)gameEvent;
-                        parameters.Add(positionSyncEvent.Id);
-                        parameters.Add(positionSyncEvent.PositionX.ToShort());
-                        parameters.Add(positionSyncEvent.PositionY.ToShort());
-                        break;
                     case GameEventType.PositionGroupSync:
                         var groupPositionSyncEvent = (PositionGroupSyncEvent)gameEvent;
                         parameters.Add(groupPositionSyncEvent.TimeStamp);
@@ -37,8 +25,8 @@ namespace LightEngineSerializeable.Utils.Serializers
                         foreach (var posSync in groupPositionSyncEvent.PositionSyncs)
                         {
                             parameters.Add(posSync.Id);
-                            parameters.Add(posSync.PositionX.ToShort());
-                            parameters.Add(posSync.PositionY.ToShort());
+                            parameters.Add(posSync.PositionX);
+                            parameters.Add(posSync.PositionY);
                         }
                         break;
                     case GameEventType.GameStart:
@@ -52,18 +40,12 @@ namespace LightEngineSerializeable.Utils.Serializers
                         {
                             parameters.Add(groupSpawnEvent.Id);
                             parameters.Add((byte)groupSpawnEvent.ObjectType);
-                            parameters.Add(groupSpawnEvent.PositionX.ToShort());
-                            parameters.Add(groupSpawnEvent.PositionY.ToShort());
+                            parameters.Add(groupSpawnEvent.PositionX);
+                            parameters.Add(groupSpawnEvent.PositionY);
                         }
                         break;
-                    case GameEventType.TurnSync:
-                        var turnSyncEvent = (TurnSyncEvent)gameEvent;
-                        parameters.Add((byte)turnSyncEvent.PlayerType);
-                        break;
-                    case GameEventType.CanPlay:
-                        var canPlayEvent = (CanPlayEvent)gameEvent;
-                        parameters.Add(canPlayEvent.CanPlay);
-                        parameters.Add(canPlayEvent.SelectedUnitId);
+                    default:
+                        parameters.AddRange(gameEvent.GetPropertyValues());
                         break;
                 }
             }
@@ -82,21 +64,10 @@ namespace LightEngineSerializeable.Utils.Serializers
                 switch (eventType)
                 {
                     case GameEventType.NetworkObjectSpawn:
-                        eventList.Add(new NetworkObjectSpawnEvent()
-                        {
-                            Id = reader.GetUShort(),
-                            ObjectType = (NetworkObjectType)reader.GetByte(),
-                            PositionX = reader.GetShort().ToFloat(),
-                            PositionY = reader.GetShort().ToFloat()
-                        });
+                        eventList.Add(SerializableModel.DeSerialize<NetworkObjectSpawnEvent>(reader));
                         break;
                     case GameEventType.PositionSync:
-                        eventList.Add(new PositionSyncEvent()
-                        {
-                            Id = reader.GetUShort(),
-                            PositionX = reader.GetShort().ToFloat(),
-                            PositionY = reader.GetShort().ToFloat(),
-                        });
+                        eventList.Add(SerializableModel.DeSerialize<PositionSyncEvent>(reader));
                         break;
                     case GameEventType.PositionGroupSync:
                         float groupTimeStamp = reader.GetFloat();
@@ -107,8 +78,8 @@ namespace LightEngineSerializeable.Utils.Serializers
                             posSyncEvents.Add(new PositionSyncEvent
                             {
                                 Id = reader.GetUShort(),
-                                PositionX = reader.GetShort().ToFloat(),
-                                PositionY = reader.GetShort().ToFloat()
+                                PositionX = reader.GetShort(),
+                                PositionY = reader.GetShort()
                             });
                         }
                         eventList.Add(new PositionGroupSyncEvent
@@ -129,9 +100,9 @@ namespace LightEngineSerializeable.Utils.Serializers
                             spawnEvents.Add(new NetworkObjectSpawnEvent
                             {
                                 Id = reader.GetUShort(),
-                                ObjectType = (NetworkObjectType)reader.GetByte(),
-                                PositionX = reader.GetShort().ToFloat(),
-                                PositionY = reader.GetShort().ToFloat()
+                                ObjectType = reader.GetByte(),
+                                PositionX = reader.GetShort(),
+                                PositionY = reader.GetShort()
                             });
                         }
                         eventList.Add(new GameStartEvent
@@ -144,13 +115,13 @@ namespace LightEngineSerializeable.Utils.Serializers
                         });
                         break;
                     case GameEventType.TurnSync:
-                        eventList.Add(new TurnSyncEvent
-                        {
-                            PlayerType = (PlayerType)reader.GetByte(),
-                        });
+                        eventList.Add(SerializableModel.DeSerialize<TurnSyncEvent>(reader));
                         break;
                     case GameEventType.CanPlay:
-                        eventList.Add(new CanPlayEvent { CanPlay = reader.GetBool(), SelectedUnitId = reader.GetUShort() });
+                        eventList.Add(SerializableModel.DeSerialize<CanPlayEvent>(reader));
+                        break;
+                    case GameEventType.NetworkObjectDestroy:
+                        eventList.Add(SerializableModel.DeSerialize<NetworkObjectDestroyEvent>(reader));
                         break;
                 }
             }
