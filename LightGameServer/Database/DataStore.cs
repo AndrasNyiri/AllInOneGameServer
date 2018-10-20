@@ -7,15 +7,23 @@ namespace LightGameServer.Database
 {
     class DataStore
     {
-        public StaticData Data { get; }
+        public StaticData Data { get; set; }
+
+        private readonly QueryRepository _queryRepository;
 
         public DataStore(QueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+            Refresh();
+        }
+
+        public void Refresh()
         {
             Data = new StaticData
             {
                 TimeStamp = DateTime.UtcNow.ToString(CultureInfo.CurrentCulture),
-                UnitSettings = queryRepository.GetAllUnitSettings(),
-                SkillSettings = queryRepository.GetAllSkillSettings()
+                UnitSettings = _queryRepository.GetAllUnitSettings(),
+                SkillSettings = _queryRepository.GetAllSkillSettings()
             };
         }
 

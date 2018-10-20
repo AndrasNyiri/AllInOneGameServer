@@ -1,6 +1,4 @@
-﻿using System;
-using LightEngineSerializeable.SerializableClasses.Enums;
-using LightGameServer.NetworkHandling;
+﻿using LightGameServer.NetworkHandling;
 using NLog;
 
 namespace LightGameServer

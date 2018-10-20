@@ -34,7 +34,7 @@ namespace LightEngineCore.Loop
 
         public int Fps { get; private set; }
 
-        private ulong _goIdCounter = 1;
+        private ushort _goIdCounter = 1;
 
 
         public GameLoop()
@@ -137,6 +137,19 @@ namespace LightEngineCore.Loop
             }
 
             return null;
+        }
+
+        public List<T> GetInOverlapCircle<T>(Vector2 pos, float radius) where T : GameObject
+        {
+            List<T> affectedGameObjects = new List<T>();
+            foreach (var go in activeObjects)
+            {
+                if (go is T && Vector2.Distance(go.Pos, pos) <= radius)
+                {
+                    affectedGameObjects.Add((T)go);
+                }
+            }
+            return affectedGameObjects;
         }
 
     }

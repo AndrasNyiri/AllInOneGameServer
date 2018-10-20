@@ -20,8 +20,8 @@ namespace LightGameServer.Database
             {
                 return new PlayerData
                 {
-                    DeviceId = Encryptor.EncryptDeviceId(value.Get<ulong>("device_id")),
-                    PlayerId = value.Get<ulong>("player_id"),
+                    DeviceId = Encryptor.EncryptDeviceId(value.Get<uint>("device_id")),
+                    PlayerId = value.Get<uint>("player_id"),
                     Name = value.Get<string>("name"),
                     Coin = value.Get<int>("coin"),
                     Diamond = value.Get<int>("diamond"),
@@ -30,7 +30,7 @@ namespace LightGameServer.Database
             }
             return new PlayerData
             {
-                PlayerId = value.Get<ulong>("player_id"),
+                PlayerId = value.Get<uint>("player_id"),
                 Name = value.Get<string>("name"),
                 Coin = value.Get<int>("coin"),
                 Diamond = value.Get<int>("diamond"),
@@ -60,7 +60,10 @@ namespace LightGameServer.Database
                 Id = value.Get<short>("id"),
                 Name = value.Get<string>("name"),
                 Radius = value.Get<float>("radius"),
-                Density = value.Get<float>("density")
+                Density = value.Get<float>("density"),
+                Value1 = value.Get<float>("value1"),
+                Value2 = value.Get<float>("value2"),
+                Value3 = value.Get<float>("value3")
             };
         }
     }

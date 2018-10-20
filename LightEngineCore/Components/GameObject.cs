@@ -19,7 +19,7 @@ namespace LightEngineCore.Components
         public List<Behaviour> components = new List<Behaviour>();
 
         public string name;
-        public ulong id;
+        public ushort id;
 
         public GameObject(GameLoop match, string name = "", params Behaviour[] initBehaviours)
         {

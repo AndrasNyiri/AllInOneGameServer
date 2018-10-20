@@ -1,4 +1,5 @@
-﻿using LightEngineSerializeable.SerializableClasses.Enums;
+﻿using System.Collections.Generic;
+using LightEngineSerializeable.SerializableClasses.Enums;
 
 namespace LightEngineSerializeable.SerializableClasses.GameModel.GameEvents
 {
@@ -8,7 +9,6 @@ namespace LightEngineSerializeable.SerializableClasses.GameModel.GameEvents
         {
         }
 
-        public float TimeStamp { get; set; }
-        public PositionSyncEvent[] PositionSyncs { get; set; }
+        public List<PositionSyncEvent> PositionSyncs { get; set; }
     }
 }

@@ -4,10 +4,10 @@
     {
         NetworkObjectSpawn,
         NetworkObjectDestroy,
-        PositionSync,
         PositionGroupSync,
         GameStart,
         TurnSync,
-        CanPlay
+        CanPlay,
+        UnitHealthSync
     }
 }

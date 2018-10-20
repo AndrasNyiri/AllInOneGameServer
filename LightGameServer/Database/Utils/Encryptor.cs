@@ -12,14 +12,14 @@ namespace LightGameServer.Database.Utils
         private const int DERIVATION_ITERATIONS = 1000;
         private const string ENCRYPT_PASSWORD = "a6wP6V-JXct%9@uKWMjP8jVZLS_c+VJY*F4TUuWkRKRAJ6m9##yAc!5v8fRpdj+ErN8%UHr@Pp^JGf=P8+k9p^*SDg$D$fW-PUzN@XyA$zVUt=JY%ysBnXMt7CLb?xrZr6^T#*5FQRwX2VP^bPN5zQ+R*u=ek^bppB@aFdQntQuWZXYnM2q!Y!mN855ACs#p!zyq6e8hxM9yd_^3YQ5Q3M@YRGFUb6vD?W*jC3qyY99NV7_DZ_mZY5Jf^Bvwz47Q";
 
-        public static string EncryptDeviceId(ulong deviceId)
+        public static string EncryptDeviceId(uint deviceId)
         {
             return Encrypt(deviceId.ToString(), ENCRYPT_PASSWORD);
         }
 
-        public static ulong DecryptDeviceId(string deviceId)
+        public static uint DecryptDeviceId(string deviceId)
         {
-            return ulong.Parse(Decrypt(deviceId, ENCRYPT_PASSWORD));
+            return uint.Parse(Decrypt(deviceId, ENCRYPT_PASSWORD));
         }
 
         private static string Encrypt(string plainText, string passPhrase)

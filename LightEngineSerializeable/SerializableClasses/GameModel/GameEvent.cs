@@ -7,6 +7,7 @@ namespace LightEngineSerializeable.SerializableClasses.GameModel
     public class GameEvent : SerializableModel
     {
         public GameEventType Type { get; protected set; }
+        public float TimeStamp { get; set; }
 
         public GameEvent(GameEventType type)
         {
