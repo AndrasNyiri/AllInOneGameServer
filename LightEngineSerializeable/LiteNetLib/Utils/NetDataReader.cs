@@ -467,6 +467,7 @@ namespace LightEngineSerializeable.LiteNetLib.Utils
             var @switch = new Dictionary<Type, Action> {
                 { typeof(string), () => { value = GetString();} },
                 { typeof(int), () => { value = GetInt();} },
+                { typeof(uint), () => { value = GetUInt();} },
                 { typeof(float), () => { value = GetFloat();} },
                 { typeof(ulong), () => { value = GetULong();} },
                 { typeof(long), () => { value = GetLong();} },

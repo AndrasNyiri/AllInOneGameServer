@@ -86,20 +86,20 @@ namespace LightGameServer.Database
 
             var values = ExecuteSelect(query, Pair.Of("name", name));
 
-            ulong newPlayerId = values[0].Get<ulong>("player_id");
+            uint newPlayerId = values[0].Get<uint>("player_id");
 
             query = @"INSERT INTO device_id_player_id (player_id) VALUES (?player_id);
                       SELECT LAST_INSERT_ID() as device_id;";
 
             values = ExecuteSelect(query, Pair.Of("player_id", newPlayerId));
-            ulong newDeviceId = values[0].Get<ulong>("device_id");
+            uint newDeviceId = values[0].Get<uint>("device_id");
 
             return GetPlayerData(Encryptor.EncryptDeviceId(newDeviceId));
         }
 
         public PlayerData GetPlayerData(string deviceId)
         {
-            ulong decryptedDeviceId = Encryptor.DecryptDeviceId(deviceId);
+            uint decryptedDeviceId = Encryptor.DecryptDeviceId(deviceId);
 
             string query = @"SELECT *
                              FROM player_data 

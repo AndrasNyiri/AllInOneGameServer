@@ -19,8 +19,7 @@ namespace LightGameServer.Game.Model
 
             for (int i = 0; i < Deck.Length; i++)
             {
-                currentIndex =
-                    (ushort)((currentIndex + 1) % Deck.Length);
+                currentIndex = (currentIndex + 1) % Deck.Length;
                 if (Deck[currentIndex].IsAlive)
                 {
                     DeckIndex = currentIndex;
@@ -43,7 +42,7 @@ namespace LightGameServer.Game.Model
 
         public ushort GetSelectedGoId()
         {
-            return (ushort)Deck[DeckIndex].id;
+            return Deck[DeckIndex].id;
         }
     }
 }

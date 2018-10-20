@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Channels;
 using System.Threading;
 using LightEngineSerializeable.LiteNetLib;
 using LightEngineSerializeable.SerializableClasses.DatabaseModel;
@@ -30,7 +31,7 @@ namespace LightGameServer.NetworkHandling
 
         private const string CONNECTION_KEY = "PzM@.5p&k!aZJXH6,mq44R\\ue?%BSSS*t\'N8xxH=L+\"S\'4^N,m5M{`N;>K]7{vUB[R!B\"?>sV!&d~b(G-pYW%5&,6_J5>Hky95.DTG_dhM^x]ph(&.\\.Xc(B.fFGW`e_";
         private const int PORT = 60001;
-        public const int UPDATE_TIME = 33;
+        public const int UPDATE_TIME = 50;
 
         public Dictionary<NetPeer, PeerInfo> PeerInfos { get; }
         public PendingGamePool PendingGamePool { get; }
@@ -71,8 +72,12 @@ namespace LightGameServer.NetworkHandling
 
             listener.PeerDisconnectedEvent += (peer, info) =>
             {
-                var match = GameManager.GetMatch(PeerInfos[peer].PlayerData.PlayerId);
-                if (match != null) GameManager.StopMatch(match);
+                var playerData = PeerInfos.ContainsKey(peer) ? PeerInfos[peer].PlayerData : null;
+                if (playerData != null)
+                {
+                    var match = GameManager.GetMatch(playerData.PlayerId);
+                    if (match != null) GameManager.StopMatch(match);
+                }
                 PendingGamePool.RemoveLeaver(PeerInfos[peer]);
                 PeerInfos.Remove(peer);
                 Console.WriteLine("Peer disconnected: {0}", peer.EndPoint);
@@ -84,7 +89,7 @@ namespace LightGameServer.NetworkHandling
             {
                 ReslovePendingPool();
                 server.PollEvents();
-                Thread.Sleep(10);
+                Thread.Sleep(UPDATE_TIME);
             }
             server.Stop();
         }

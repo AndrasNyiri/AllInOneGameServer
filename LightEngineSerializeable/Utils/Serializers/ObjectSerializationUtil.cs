@@ -42,6 +42,7 @@ namespace LightEngineSerializeable.Utils.Serializers
             var ts = new TypeSwitch()
                 .Case((string x) => { writer.Put(x); })
                 .Case((int x) => { writer.Put(x); })
+                .Case((uint x) => { writer.Put(x); })
                 .Case((float x) => { writer.Put(x); })
                 .Case((long x) => { writer.Put(x); })
                 .Case((ulong x) => { writer.Put(x); })

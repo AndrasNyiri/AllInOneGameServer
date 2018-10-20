@@ -86,14 +86,13 @@ namespace LightGameServer.Game
             _timerRunning = false;
             _sendPositions = true;
             GetPlayerInTurn().GetSelectedUnit().PlayAbility(direction);
-            GetPlayerInTurn().IncrementDeckIndex();
             GetPlayerInTurn().CanPlay = false;
             SwitchTurns();
         }
 
         private void SetAttackingFlag()
         {
-            foreach (var unit in GetPlayerInTurn().Deck)
+            foreach (var unit in GetPlayerNotInTurn().Deck)
             {
                 unit.IsAttacking = false;
             }
@@ -174,27 +173,35 @@ namespace LightGameServer.Game
             _timerRunning = true;
         }
 
-        private void SendGameStartEvents()
+        private void SendGameStartEvents(PlayerInfo playerInfo)
         {
 
             List<NetworkObjectSpawnEvent> spawnEvents = new List<NetworkObjectSpawnEvent>();
+            List<GameEvent> otherEvents = new List<GameEvent>();
             foreach (var go in gameLoop.activeObjects)
             {
-                Rigidbody goRig = go.GetComponent<Rigidbody>();
-                if (goRig != null && goRig.body.BodyType == BodyType.Dynamic)
+                if (go is Unit)
                 {
+                    Unit unit = (Unit)go;
+                    if (!unit.IsAlive) continue;
                     NetworkObjectType objectType = (NetworkObjectType)Enum.Parse(typeof(NetworkObjectType), go.name);
                     spawnEvents.Add(new NetworkObjectSpawnEvent
                     {
-                        Id = (ushort)go.id,
+                        Id = go.id,
                         ObjectType = (byte)objectType,
                         PositionX = go.Pos.X.ToShort(),
-                        PositionY = go.Pos.Y.ToShort()
+                        PositionY = go.Pos.Y.ToShort(),
+                        Owner = (byte)unit.Player.PlayerType
+                    });
+                    otherEvents.Add(new UnitHealthSyncEvent
+                    {
+                        Id = go.id,
+                        CurrentHealth = unit.Hp
                     });
                 }
             }
-            SendGameEventToPlayer(playerOne, new GameStartEvent { LevelId = 1, NetworkTime = gameLoop.Time, PlayerType = playerOne.PlayerType, SpawnEvents = spawnEvents.ToArray(), CanPlay = GetPlayerInTurn() == playerOne });
-            SendGameEventToPlayer(playerTwo, new GameStartEvent { LevelId = 1, NetworkTime = gameLoop.Time, PlayerType = playerTwo.PlayerType, SpawnEvents = spawnEvents.ToArray(), CanPlay = GetPlayerInTurn() == playerTwo });
+            SendGameEventToPlayer(playerInfo, new GameStartEvent { LevelId = 1, PlayerType = playerInfo.PlayerType, SpawnEvents = spawnEvents.ToArray(), CanPlay = GetPlayerInTurn() == playerInfo });
+            SendGameEventToPlayer(playerInfo, otherEvents.ToArray());
         }
 
         private void SendTurnEvent()
@@ -214,41 +221,79 @@ namespace LightGameServer.Game
 
             if (!skipStopped)
             {
-                _everytingStopped = gameLoop.AddInvokable(new Invokable(() =>
-                {
-                    bool stopped = true;
-                    foreach (var go in gameLoop.activeObjects)
-                    {
-                        var rb = go.GetComponent<Rigidbody>();
-                        if (rb != null && rb.body.LinearVelocity.Length() > 0.1f)
-                        {
-                            stopped = false;
-                        }
-                    }
-
-                    if (stopped)
-                    {
-                        OnEverytingStopped();
-                    }
-                }));
+                StartCheckEverytingStopped();
             }
+            else
+            {
+                GetPlayerNotInTurn().IncrementDeckIndex();
+            }
+        }
+
+        private void StartCheckEverytingStopped()
+        {
+            _everytingStopped = gameLoop.AddInvokable(new Invokable(() =>
+            {
+                if (IsEverytingStopped())
+                {
+                    OnEverytingStopped();
+                }
+            }));
+        }
+
+        private bool IsEverytingStopped()
+        {
+            bool stopped = true;
+            foreach (var go in gameLoop.activeObjects)
+            {
+                var rb = go.GetComponent<Rigidbody>();
+                if (rb != null && rb.body.LinearVelocity.Length() > 0.1f)
+                {
+                    stopped = false;
+                }
+            }
+
+            return stopped;
         }
 
         private void OnEverytingStopped()
         {
+
+            foreach (var go in gameLoop.activeObjects)
+            {
+                var rb = go.GetComponent<Rigidbody>();
+                if (rb != null) rb.body.LinearVelocity = Vector2.Zero;
+            }
+
             foreach (var go in gameLoop.activeObjects)
             {
                 if (go is Skill)
                 {
                     go.Destroy();
-                    continue;
                 }
-                var rb = go.GetComponent<Rigidbody>();
-                if (rb != null) rb.body.LinearVelocity = Vector2.Zero;
             }
 
-            StartTimer();
+            if (!IsEverytingStopped())
+            {
+                return;
+            }
+
+
             _everytingStopped.Interrupt();
+
+            foreach (var go in gameLoop.activeObjects)
+            {
+                if (go is Unit)
+                {
+                    var unit = (Unit)go;
+                    if (!unit.IsAlive)
+                    {
+                        unit.Destroy();
+                    }
+                }
+            }
+
+            GetPlayerNotInTurn().IncrementDeckIndex();
+            StartTimer();
             _sendPositions = false;
 
             SendCanPlay(true);
@@ -282,7 +327,8 @@ namespace LightGameServer.Game
         {
             BuildWalls();
             CreateCasters();
-            SendGameStartEvents();
+            SendGameStartEvents(playerOne);
+            SendGameStartEvents(playerTwo);
             SendTurnEvent();
             SendCanPlay(true);
             StartTimer();
@@ -309,7 +355,7 @@ namespace LightGameServer.Game
             {
                 if (!_sendPositions) return;
 
-                List<GameEvent> posEvents = new List<GameEvent>();
+                List<PositionSyncEvent> posEvents = new List<PositionSyncEvent>();
                 foreach (var go in gameLoop.activeObjects)
                 {
                     Rigidbody goRig = go.GetComponent<Rigidbody>();
@@ -318,7 +364,7 @@ namespace LightGameServer.Game
                         var pos = go.Pos;
                         posEvents.Add(new PositionSyncEvent
                         {
-                            Id = (ushort)go.id,
+                            Id = go.id,
                             PositionX = pos.X.ToShort(),
                             PositionY = pos.Y.ToShort(),
                         });
@@ -326,10 +372,16 @@ namespace LightGameServer.Game
                 }
 
                 var sections = posEvents.SplitList();
+
                 foreach (var section in sections)
                 {
-                    SendGameEventToPlayers(SendOptions.Sequenced, section.ToArray());
+                    GameEvent positionGroupEvent = new PositionGroupSyncEvent
+                    {
+                        PositionSyncs = section
+                    };
+                    SendGameEventToPlayers(SendOptions.Sequenced, positionGroupEvent);
                 }
+
             }, Server.UPDATE_TIME));
 
 
@@ -339,14 +391,22 @@ namespace LightGameServer.Game
             }
         }
 
-        private void SendGameEventToPlayer(PlayerInfo player, GameEvent gameEvent)
+        private void SendGameEventToPlayer(PlayerInfo player, params GameEvent[] gameEvents)
         {
-            NetDataWriter writer = _gameEventSerializer.Serialize(gameEvent);
+            foreach (var gameEvent in gameEvents)
+            {
+                gameEvent.TimeStamp = gameLoop.Time;
+            }
+            NetDataWriter writer = _gameEventSerializer.Serialize(gameEvents);
             if (player.PeerInfo.IsConnected) DataSender.New(player.PeerInfo.NetPeer).Send(writer, SendOptions.ReliableOrdered);
         }
 
         public void SendGameEventToPlayers(SendOptions sendOption, params GameEvent[] gameEvents)
         {
+            foreach (var gameEvent in gameEvents)
+            {
+                gameEvent.TimeStamp = gameLoop.Time;
+            }
             NetDataWriter writer = _gameEventSerializer.Serialize(gameEvents);
             if (playerOne.PeerInfo.IsConnected) DataSender.New(playerOne.PeerInfo.NetPeer).Send(writer, sendOption);
             if (playerTwo.PeerInfo.IsConnected) DataSender.New(playerTwo.PeerInfo.NetPeer).Send(writer, sendOption);

@@ -27,7 +27,7 @@ namespace LightGameServer.Game
             _matches.Remove(match);
         }
 
-        public Match GetMatch(ulong playerId)
+        public Match GetMatch(uint playerId)
         {
             foreach (var match in _matches)
             {

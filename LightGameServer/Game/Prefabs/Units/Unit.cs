@@ -53,18 +53,18 @@ namespace LightGameServer.Game.Prefabs.Units
             body.Restitution = _restitution;
             body.Friction = _firction;
             body.SleepingAllowed = true;
-            this.onCollidedWithGameObject += OnCollidedWithGameObject;
+            this.onCollidedWithGameObject += OnCollision;
         }
 
-        public virtual void OnCollidedWithGameObject(GameObject go)
+        public virtual void OnCollision(GameObject go)
         {
             if (!IsAttacking) return;
             if (go is Unit)
             {
-                if (Player.IsInDeck((Unit)go)) return;
-                Console.WriteLine("I " + name + ", should attack " + go.name);
+                Unit unit = (Unit)go;
+                if (Player.IsInDeck(unit)) return;
+                unit.TakeDamage(Settings.Damage);
             }
-
         }
 
         public virtual void PlayAbility(Vector2 direction)
@@ -72,9 +72,27 @@ namespace LightGameServer.Game.Prefabs.Units
 
         }
 
+        public virtual void TakeDamage(int amountInt)
+        {
+            short amount = (short)amountInt;
+            var healthChanged = Hp - amount >= 0 ? amount : Hp;
+            Hp -= healthChanged;
+            if (healthChanged > 0) MyMatch.SendGameEventToPlayers(SendOptions.ReliableOrdered,
+                 new UnitHealthSyncEvent { Id = this.id, IsDamaged = true, CurrentHealth = Hp, HealthChanged = healthChanged });
+        }
+
+        public virtual void Heal(int amountInt)
+        {
+            short amount = (short)amountInt;
+            short healthChanged = Hp + amount <= Settings.Hp ? amount : (short)(Settings.Hp - Hp);
+            Hp += healthChanged;
+            if (healthChanged > 0) MyMatch.SendGameEventToPlayers(SendOptions.ReliableOrdered,
+                new UnitHealthSyncEvent { Id = this.id, IsDamaged = false, CurrentHealth = Hp, HealthChanged = healthChanged });
+        }
+
         public override void Destroy()
         {
-            MyMatch.SendGameEventToPlayers(SendOptions.ReliableOrdered, new NetworkObjectDestroyEvent { Id = (ushort)id });
+            MyMatch.SendGameEventToPlayers(SendOptions.ReliableOrdered, new NetworkObjectDestroyEvent { Id = id });
             base.Destroy();
         }
     }

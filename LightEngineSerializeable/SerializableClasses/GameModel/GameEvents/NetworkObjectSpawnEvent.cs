@@ -8,6 +8,7 @@ namespace LightEngineSerializeable.SerializableClasses.GameModel.GameEvents
         public byte ObjectType { get; set; }
         public short PositionX { get; set; }
         public short PositionY { get; set; }
+        public byte Owner { get; set; }
 
         public NetworkObjectSpawnEvent() : base(GameEventType.NetworkObjectSpawn)
         {

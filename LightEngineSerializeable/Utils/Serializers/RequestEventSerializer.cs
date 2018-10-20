@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using LightEngineSerializeable.LiteNetLib.Utils;
+using LightEngineSerializeable.SerializableClasses.DatabaseModel;
 using LightEngineSerializeable.SerializableClasses.Enums;
 using LightEngineSerializeable.SerializableClasses.GameModel;
 using LightEngineSerializeable.SerializableClasses.GameModel.RequestEvents;
@@ -15,20 +16,7 @@ namespace LightEngineSerializeable.Utils.Serializers
             foreach (var request in requests)
             {
                 parameters.Add((byte)request.Type);
-                switch (request.Type)
-                {
-                    case RequestEventType.PlayUnitAbility:
-                        var pushRequest = (PlayUnitAbilityRequest)request;
-                        parameters.Add(pushRequest.DirectionX);
-                        parameters.Add(pushRequest.DirectionY);
-                        break;
-                    case RequestEventType.SetAimDirection:
-                        var aimRequest = (SetAimDirectionRequest)request;
-                        parameters.Add(aimRequest.Active);
-                        parameters.Add(aimRequest.DirectionX);
-                        parameters.Add(aimRequest.DirectionZ);
-                        break;
-                }
+                parameters.AddRange(request.GetPropertyValues());
             }
 
             return ObjectSerializationUtil.SerializeObjects(parameters.ToArray());
@@ -45,19 +33,10 @@ namespace LightEngineSerializeable.Utils.Serializers
                 switch (requestType)
                 {
                     case RequestEventType.PlayUnitAbility:
-                        requestList.Add(new PlayUnitAbilityRequest
-                        {
-                            DirectionX = reader.GetFloat(),
-                            DirectionY = reader.GetFloat()
-                        });
+                        requestList.Add(SerializableModel.DeSerialize<PlayUnitAbilityRequest>(reader));
                         break;
                     case RequestEventType.SetAimDirection:
-                        requestList.Add(new SetAimDirectionRequest
-                        {
-                            Active = reader.GetBool(),
-                            DirectionX = reader.GetFloat(),
-                            DirectionZ = reader.GetFloat()
-                        });
+                        requestList.Add(SerializableModel.DeSerialize<SetAimDirectionRequest>(reader));
                         break;
                 }
             }

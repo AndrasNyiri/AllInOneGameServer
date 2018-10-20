@@ -79,6 +79,7 @@
     <Compile Include="SerializableClasses\GameModel\GameEvents\PositionSyncEvent.cs" />
     <Compile Include="SerializableClasses\GameModel\GameEvents\TurnSyncEvent.cs" />
     <Compile Include="SerializableClasses\DatabaseModel\PlayerData.cs" />
+    <Compile Include="SerializableClasses\GameModel\GameEvents\UnitHealthSyncEvent.cs" />
     <Compile Include="SerializableClasses\GameModel\RequestEvent.cs" />
     <Compile Include="SerializableClasses\GameModel\RequestEvents\PlayUnitAbilityRequest.cs" />
     <Compile Include="SerializableClasses\GameModel\RequestEvents\SetAimDirectionRequest.cs" />

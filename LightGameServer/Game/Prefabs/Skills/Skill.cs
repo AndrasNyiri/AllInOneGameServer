@@ -27,7 +27,7 @@ namespace LightGameServer.Game.Prefabs.Skills
         public Match MyMatch { get; }
         public NetworkObjectType Type { get; }
 
-        protected Skill(Match match, PlayerInfo player, NetworkObjectType type, SkillSettings skillSettings, Vector2 pos, Vector2 pushDir, short damage) : base(match.gameLoop, skillSettings.Name, new Rigidbody(match.gameLoop, skillSettings.Radius, skillSettings.Density, pos, BodyType.Dynamic))
+        protected Skill(Match match, PlayerInfo player, NetworkObjectType type, SkillSettings skillSettings, Vector2 pos, short damage) : base(match.gameLoop, skillSettings.Name, new Rigidbody(match.gameLoop, skillSettings.Radius, skillSettings.Density, pos, BodyType.Dynamic))
         {
             var body = GetComponent<Rigidbody>().body;
             body.LinearDamping = _drag;
@@ -40,12 +40,12 @@ namespace LightGameServer.Game.Prefabs.Skills
             Player = player;
             Settings = skillSettings;
             Damage = damage;
-            this.onCollidedWithGameObject += onCollidedWithGameObject;
+            this.onCollidedWithGameObject += OnCollided;
             SendSpawnEvent();
         }
 
 
-        public virtual void OnCollidedWithGameObject(GameObject go)
+        public virtual void OnCollided(GameObject go)
         {
             if (go is Unit)
             {
@@ -58,17 +58,18 @@ namespace LightGameServer.Game.Prefabs.Skills
         {
             var spawnEvent = new NetworkObjectSpawnEvent
             {
-                Id = (ushort)id,
+                Id = id,
                 ObjectType = (byte)Type,
                 PositionX = Pos.X.ToShort(),
                 PositionY = Pos.Y.ToShort(),
+                Owner = (byte)Player.PlayerType
             };
             MyMatch.SendGameEventToPlayers(SendOptions.ReliableOrdered, spawnEvent);
         }
 
         public override void Destroy()
         {
-            MyMatch.SendGameEventToPlayers(SendOptions.ReliableOrdered, new NetworkObjectDestroyEvent { Id = (ushort)id });
+            MyMatch.SendGameEventToPlayers(SendOptions.ReliableOrdered, new NetworkObjectDestroyEvent { Id = id });
             base.Destroy();
         }
     }
