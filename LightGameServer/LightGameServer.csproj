@@ -59,6 +59,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConsoleStuff\ConsoleMenu.cs" />
+    <Compile Include="ConsoleStuff\MenuOption.cs" />
     <Compile Include="Database\DBConnector.cs" />
     <Compile Include="Database\ModelCreator.cs" />
     <Compile Include="Database\QueryRepository.cs" />

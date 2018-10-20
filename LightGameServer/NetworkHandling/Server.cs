@@ -6,6 +6,7 @@ using LightEngineSerializeable.LiteNetLib;
 using LightEngineSerializeable.SerializableClasses.DatabaseModel;
 using LightEngineSerializeable.SerializableClasses.Enums;
 using LightEngineSerializeable.Utils;
+using LightGameServer.ConsoleStuff;
 using LightGameServer.Database;
 using LightGameServer.Game;
 using LightGameServer.NetworkHandling.Handlers;
@@ -31,7 +32,7 @@ namespace LightGameServer.NetworkHandling
 
         private const string CONNECTION_KEY = "PzM@.5p&k!aZJXH6,mq44R\\ue?%BSSS*t\'N8xxH=L+\"S\'4^N,m5M{`N;>K]7{vUB[R!B\"?>sV!&d~b(G-pYW%5&,6_J5>Hky95.DTG_dhM^x]ph(&.\\.Xc(B.fFGW`e_";
         private const int PORT = 60001;
-        public const int UPDATE_TIME = 50;
+        public const int UPDATE_TIME = 15;
 
         public Dictionary<NetPeer, PeerInfo> PeerInfos { get; }
         public PendingGamePool PendingGamePool { get; }
@@ -58,6 +59,11 @@ namespace LightGameServer.NetworkHandling
             server.Start(PORT);
             server.UpdateTime = UPDATE_TIME;
             Console.WriteLine("Game server is listening...");
+            bool running = true;
+            ConsoleMenu consoleMenu = new ConsoleMenu()
+                .Add("Exit", () => { running = false; })
+                .Add("Refresh static data cache", () => { DataStore.Refresh(); });
+
 
             listener.NetworkErrorEvent += (point, code) =>
             {
@@ -85,11 +91,13 @@ namespace LightGameServer.NetworkHandling
 
             listener.NetworkReceiveEvent += (peer, reader) => { NetworkCommandHandler.New(reader, peer).HandleReceived(); };
 
-            while (!Console.KeyAvailable)
+            consoleMenu.Display();
+            while (running)
             {
-                ReslovePendingPool();
                 server.PollEvents();
+                ReslovePendingPool();
                 Thread.Sleep(UPDATE_TIME);
+                consoleMenu.Update();
             }
             server.Stop();
         }
