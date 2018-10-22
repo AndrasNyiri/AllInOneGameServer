@@ -8,6 +8,7 @@
         GameStart,
         TurnSync,
         CanPlay,
-        UnitHealthSync
+        UnitHealthSync,
+        EndGame
     }
 }

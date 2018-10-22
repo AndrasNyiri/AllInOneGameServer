@@ -10,6 +10,7 @@ namespace LightGameServer.Database
     {
         private readonly DbConnector _dbConnector;
         private readonly ModelCreator _modelCreator;
+        private readonly int[] _defaultUnits = { 1, 2, 3, 4 };
 
         public QueryRepository()
         {
@@ -94,6 +95,22 @@ namespace LightGameServer.Database
             values = ExecuteSelect(query, Pair.Of("player_id", newPlayerId));
             uint newDeviceId = values[0].Get<uint>("device_id");
 
+            query = @"INSERT INTO player_unit (player_id,unit_id) VALUES (?player_id,?unit_id)";
+            foreach (var defaultUnit in _defaultUnits)
+            {
+                ExecuteNonQuery(query, Pair.Of("player_id", newPlayerId), Pair.Of("unit_id", defaultUnit));
+            }
+
+            query = @"INSERT INTO player_deck (player_id,unit_one_id,unit_two_id,unit_three_id,unit_four_id)
+                      VALUES (?player_id,?unit_one_id,?unit_two_id,?unit_three_id,?unit_four_id);";
+            ExecuteNonQuery(query,
+                            Pair.Of("player_id", newPlayerId),
+                            Pair.Of("unit_one_id", _defaultUnits[0]),
+                            Pair.Of("unit_two_id", _defaultUnits[1]),
+                            Pair.Of("unit_three_id", _defaultUnits[2]),
+                            Pair.Of("unit_four_id", _defaultUnits[3]));
+
+
             return GetPlayerData(Encryptor.EncryptDeviceId(newDeviceId));
         }
 
@@ -129,7 +146,7 @@ namespace LightGameServer.Database
         public UnitSettings[] GetAllUnitSettings()
         {
             string query = @"SELECT u.id,name,density,radius,push_force,hp,damage,projectile_damage
-                             FROM units AS u
+                             FROM unit AS u
                              INNER JOIN weight AS w ON u.weight=w.id
                              INNER JOIN size AS sz ON u.size=sz.id
                              INNER JOIN speed AS sp ON u.speed=sp.id;";
@@ -146,7 +163,7 @@ namespace LightGameServer.Database
         public SkillSettings[] GetAllSkillSettings()
         {
             string query = @"SELECT *
-                             FROM skills";
+                             FROM skill";
 
             var values = ExecuteSelect(query);
             List<SkillSettings> skills = new List<SkillSettings>();
@@ -156,6 +173,30 @@ namespace LightGameServer.Database
             }
 
             return skills.ToArray();
+        }
+
+        public PlayerUnit[] GetPlayerUnits(uint playerId)
+        {
+            List<PlayerUnit> playerUnits = new List<PlayerUnit>();
+            string query = @"SELECT t.unit_id, t.amount
+                            FROM player_unit t
+                            WHERE t.player_id = ?player_id";
+            var values = ExecuteSelect(query, Pair.Of("player_id", playerId));
+            foreach (var value in values)
+            {
+                playerUnits.Add(_modelCreator.CreatePlayerUnit(value));
+            }
+
+            return playerUnits.ToArray();
+        }
+
+        public PlayerDeck GetPlayerDeck(uint playerId)
+        {
+            string query = @"SELECT unit_one_id,unit_two_id,unit_three_id,unit_four_id
+                             FROM player_deck WHERE player_id=?player_id LIMIT 1;";
+
+            var values = ExecuteSelect(query, Pair.Of("player_id", playerId));
+            return _modelCreator.CreatePlayerDeck(values[0]);
         }
     }
 }

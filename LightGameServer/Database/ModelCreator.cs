@@ -16,25 +16,30 @@ namespace LightGameServer.Database
 
         public PlayerData CreatePlayerData(Dictionary<string, object> value)
         {
+            uint playerId = value.Get<uint>("player_id");
             if (value.ContainsKey("device_id"))
             {
                 return new PlayerData
                 {
                     DeviceId = Encryptor.EncryptDeviceId(value.Get<uint>("device_id")),
-                    PlayerId = value.Get<uint>("player_id"),
+                    PlayerId = playerId,
                     Name = value.Get<string>("name"),
                     Coin = value.Get<int>("coin"),
                     Diamond = value.Get<int>("diamond"),
-                    LadderScore = value.Get<int>("ladder_score")
+                    LadderScore = value.Get<int>("ladder_score"),
+                    OwnedUnits = _repo.GetPlayerUnits(playerId),
+                    Deck = _repo.GetPlayerDeck(playerId)
                 };
             }
             return new PlayerData
             {
-                PlayerId = value.Get<uint>("player_id"),
+                PlayerId = playerId,
                 Name = value.Get<string>("name"),
                 Coin = value.Get<int>("coin"),
                 Diamond = value.Get<int>("diamond"),
-                LadderScore = value.Get<int>("ladder_score")
+                LadderScore = value.Get<int>("ladder_score"),
+                OwnedUnits = _repo.GetPlayerUnits(playerId),
+                Deck = _repo.GetPlayerDeck(playerId)
             };
         }
 
@@ -64,6 +69,26 @@ namespace LightGameServer.Database
                 Value1 = value.Get<float>("value1"),
                 Value2 = value.Get<float>("value2"),
                 Value3 = value.Get<float>("value3")
+            };
+        }
+
+        public PlayerUnit CreatePlayerUnit(Dictionary<string, object> value)
+        {
+            return new PlayerUnit
+            {
+                UnitId = value.Get<short>("unit_id"),
+                Amount = value.Get<int>("amount")
+            };
+        }
+
+        public PlayerDeck CreatePlayerDeck(Dictionary<string, object> value)
+        {
+            return new PlayerDeck
+            {
+                UnitOne = value.Get<short>("unit_one_id"),
+                UnitTwo = value.Get<short>("unit_two_id"),
+                UnitThree = value.Get<short>("unit_three_id"),
+                UnitFour = value.Get<short>("unit_four_id"),
             };
         }
     }

@@ -19,6 +19,7 @@ namespace LightEngineCore.Components
             body = BodyFactory.CreateCircle(gameLoop.physicsWorld, radius, density, position,
                 bType, this);
             body.OnCollision += OnBodyCollision;
+            if (bType == BodyType.Dynamic) body.IsBullet = true;
         }
 
         public Rigidbody(GameLoop gameLoop, float width, float height, float density, Vector2 position, BodyType bType, float rotation = 0f)
@@ -27,6 +28,7 @@ namespace LightEngineCore.Components
             body = BodyFactory.CreateRectangle(gameLoop.physicsWorld, width, height, density, position, rotation,
                 bType, this);
             body.OnCollision += OnBodyCollision;
+            if (bType == BodyType.Dynamic) body.IsBullet = true;
         }
 
 

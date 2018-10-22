@@ -80,6 +80,7 @@
     <Compile Include="Game\Prefabs\Units\Caster2.cs" />
     <Compile Include="Game\Prefabs\Units\Caster3.cs" />
     <Compile Include="Game\Prefabs\Units\Caster4.cs" />
+    <Compile Include="Game\Prefabs\Units\UnitFactory.cs" />
     <Compile Include="NetworkHandling\Model\PeerInfo.cs" />
     <Compile Include="NetworkHandling\Handlers\NetworkCommandHandler.cs" />
     <Compile Include="NetworkHandling\Model\PlayerPair.cs" />

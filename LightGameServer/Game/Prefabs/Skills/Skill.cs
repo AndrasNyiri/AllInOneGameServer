@@ -27,6 +27,8 @@ namespace LightGameServer.Game.Prefabs.Skills
         public Match MyMatch { get; }
         public NetworkObjectType Type { get; }
 
+        public bool Destroyed { get; private set; }
+
         protected Skill(Match match, PlayerInfo player, NetworkObjectType type, SkillSettings skillSettings, Vector2 pos, short damage) : base(match.gameLoop, skillSettings.Name, new Rigidbody(match.gameLoop, skillSettings.Radius, skillSettings.Density, pos, BodyType.Dynamic))
         {
             var body = GetComponent<Rigidbody>().body;
@@ -69,6 +71,8 @@ namespace LightGameServer.Game.Prefabs.Skills
 
         public override void Destroy()
         {
+            if (Destroyed) return;
+            Destroyed = true;
             MyMatch.SendGameEventToPlayers(SendOptions.ReliableOrdered, new NetworkObjectDestroyEvent { Id = id });
             base.Destroy();
         }

@@ -17,7 +17,7 @@ namespace LightGameServer.Game.Model
         {
             int currentIndex = DeckIndex;
 
-            for (int i = 0; i < Deck.Length; i++)
+            for (int i = 0; i <= Deck.Length; i++)
             {
                 currentIndex = (currentIndex + 1) % Deck.Length;
                 if (Deck[currentIndex].IsAlive)
@@ -28,6 +28,11 @@ namespace LightGameServer.Game.Model
             }
 
             return false;
+        }
+
+        public bool AreAllUnitsDead()
+        {
+            return Deck.All(unit => !unit.IsAlive);
         }
 
         public bool IsInDeck(Unit unit)
@@ -42,7 +47,7 @@ namespace LightGameServer.Game.Model
 
         public ushort GetSelectedGoId()
         {
-            return Deck[DeckIndex].id;
+            return GetSelectedUnit().id;
         }
     }
 }

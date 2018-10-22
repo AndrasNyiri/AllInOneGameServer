@@ -22,6 +22,7 @@ namespace LightGameServer.Game.Prefabs.Skills
 
         public override void OnCollided(GameObject go)
         {
+            if (Destroyed) return;
             if (go is Unit)
             {
                 Unit unit = (Unit)go;

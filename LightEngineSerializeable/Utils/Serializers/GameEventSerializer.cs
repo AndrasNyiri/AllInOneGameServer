@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using LightEngineSerializeable.LiteNetLib.Utils;
+using LightEngineSerializeable.SerializableClasses;
 using LightEngineSerializeable.SerializableClasses.DatabaseModel;
 using LightEngineSerializeable.SerializableClasses.Enums;
 using LightEngineSerializeable.SerializableClasses.GameModel;
@@ -32,11 +33,21 @@ namespace LightEngineSerializeable.Utils.Serializers
                         parameters.Add(gameStartEvent.TimeStamp);
                         parameters.Add((byte)gameStartEvent.PlayerType);
                         parameters.Add(gameStartEvent.LevelId);
-                        parameters.Add(gameStartEvent.CanPlay);
                         parameters.Add((byte)gameStartEvent.SpawnEvents.Length);
                         foreach (var groupSpawnEvent in gameStartEvent.SpawnEvents)
                         {
                             parameters.AddRange(groupSpawnEvent.GetPropertyValues());
+                        }
+                        parameters.AddRange(gameStartEvent.EnemyPlayerData.GetPropertyValues());
+                        parameters.Add((byte)gameStartEvent.MyDeckBind.Length);
+                        foreach (var bind in gameStartEvent.MyDeckBind)
+                        {
+                            parameters.AddRange(bind.GetPropertyValues());
+                        }
+                        parameters.Add((byte)gameStartEvent.EnemyDeckBind.Length);
+                        foreach (var bind in gameStartEvent.EnemyDeckBind)
+                        {
+                            parameters.AddRange(bind.GetPropertyValues());
                         }
                         break;
                     default:
@@ -61,9 +72,6 @@ namespace LightEngineSerializeable.Utils.Serializers
                     case GameEventType.NetworkObjectSpawn:
                         eventList.Add(SerializableModel.DeSerialize<NetworkObjectSpawnEvent>(reader));
                         break;
-                    //case GameEventType.PositionSync:
-                    //    eventList.Add(SerializableModel.DeSerialize<PositionSyncEvent>(reader));
-                    //    break;
                     case GameEventType.PositionGroupSync:
                         float groupTimeStamp = reader.GetFloat();
                         List<PositionSyncEvent> posSyncEvents = new List<PositionSyncEvent>();
@@ -82,20 +90,35 @@ namespace LightEngineSerializeable.Utils.Serializers
                         float networkTime = reader.GetFloat();
                         var playerType = (PlayerType)reader.GetByte();
                         var levelId = reader.GetByte();
-                        var canPlay = reader.GetBool();
                         List<NetworkObjectSpawnEvent> spawnEvents = new List<NetworkObjectSpawnEvent>();
                         byte spawnCount = reader.GetByte();
                         for (int j = 0; j < spawnCount; j++)
                         {
                             spawnEvents.Add(SerializableModel.DeSerialize<NetworkObjectSpawnEvent>(reader));
                         }
+                        var enemyPlayerData = PlayerData.DeSerialize(reader);
+                        var myDeckBindCount = reader.GetByte();
+                        List<DeckGameObjectBind> myDeckBindList = new List<DeckGameObjectBind>();
+                        for (int j = 0; j < myDeckBindCount; j++)
+                        {
+                            myDeckBindList.Add(SerializableModel.DeSerialize<DeckGameObjectBind>(reader));
+                        }
+
+                        var enemyDeckBindCount = reader.GetByte();
+                        List<DeckGameObjectBind> enemyDeckBindList = new List<DeckGameObjectBind>();
+                        for (int j = 0; j < enemyDeckBindCount; j++)
+                        {
+                            enemyDeckBindList.Add(SerializableModel.DeSerialize<DeckGameObjectBind>(reader));
+                        }
                         eventList.Add(new GameStartEvent
                         {
                             TimeStamp = networkTime,
                             PlayerType = playerType,
                             LevelId = levelId,
-                            CanPlay = canPlay,
-                            SpawnEvents = spawnEvents.ToArray()
+                            SpawnEvents = spawnEvents.ToArray(),
+                            EnemyPlayerData = enemyPlayerData,
+                            MyDeckBind = myDeckBindList.ToArray(),
+                            EnemyDeckBind = enemyDeckBindList.ToArray()
                         });
                         break;
                     case GameEventType.TurnSync:
@@ -109,6 +132,9 @@ namespace LightEngineSerializeable.Utils.Serializers
                         break;
                     case GameEventType.UnitHealthSync:
                         eventList.Add(SerializableModel.DeSerialize<UnitHealthSyncEvent>(reader));
+                        break;
+                    case GameEventType.EndGame:
+                        eventList.Add(SerializableModel.DeSerialize<EndGameEvent>(reader));
                         break;
                 }
             }

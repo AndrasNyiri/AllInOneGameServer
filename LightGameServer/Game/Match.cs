@@ -8,6 +8,7 @@ using LightGameServer.NetworkHandling.Model;
 using System.Collections.Generic;
 using LightEngineSerializeable.LiteNetLib;
 using LightEngineSerializeable.LiteNetLib.Utils;
+using LightEngineSerializeable.SerializableClasses;
 using LightEngineSerializeable.SerializableClasses.DatabaseModel;
 using LightEngineSerializeable.SerializableClasses.Enums;
 using LightEngineSerializeable.SerializableClasses.GameModel;
@@ -40,7 +41,6 @@ namespace LightGameServer.Game
         private float _turnTimeLeft;
         private bool _timerRunning;
 
-
         private PlayerType _playerTurn;
         private Invokable _everytingStopped;
 
@@ -52,7 +52,16 @@ namespace LightGameServer.Game
                 ? new PlayerInfo { PeerInfo = playerTwo, PlayerType = PlayerType.PlayerTwo, DeckIndex = 0 }
                 : new PlayerInfo
                 {
-                    PeerInfo = new PeerInfo { PlayerData = new PlayerData { Name = "BOT" } },
+                    PeerInfo = new PeerInfo
+                    {
+                        PlayerData = new PlayerData
+                        {
+                            Name = "BOT",
+                            DeviceId = "",
+                            OwnedUnits = new PlayerUnit[0],
+                            Deck = playerOne.PlayerData.Deck
+                        }
+                    },
                     PlayerType = PlayerType.PlayerTwo,
                     DeckIndex = 0
                 };
@@ -118,64 +127,58 @@ namespace LightGameServer.Game
             return playerOne.PeerInfo.PlayerData.PlayerId == peerInfo.PlayerData.PlayerId ? playerTwo.PeerInfo.NetPeer : playerOne.PeerInfo.NetPeer;
         }
 
-        private GameObject GetGameObject(ulong id)
+        private PlayerInfo GetOppositePlayer(PlayerInfo player)
         {
-            foreach (var go in gameLoop.activeObjects)
-            {
-                if (go.id == id) return go;
-            }
-
-            return null;
+            return player == playerOne ? playerTwo : playerOne;
         }
 
         private void BuildWalls()
         {
             new Wall(gameLoop, "FrontWall",
-                10.9986f, 1f, new Vector2(0, 12));
+                12.03f, 1f, new Vector2(0, 12));
             new Wall(gameLoop, "TopRightWall",
-                5.85351f, 1f, new Vector2(6.69f, 10.22f), -45f);
+                5.85351f, 1f, new Vector2(8f, 10.22f), -45f);
             new Wall(gameLoop, "TopLeftWall",
-                 5.85351f, 1f, new Vector2(-6.69f, 10.22f), 45f);
+                5.85351f, 1f, new Vector2(-8f, 10.22f), 45f);
             new Wall(gameLoop, "BottomWall",
-                10.9986f, 1f, new Vector2(0, -12));
+                12.03f, 1f, new Vector2(0, -12));
             new Wall(gameLoop, "BottomRightWall",
-                5.85351f, 1f, new Vector2(6.69f, -10.22f), 45f);
+                5.85351f, 1f, new Vector2(8f, -10.22f), 45f);
             new Wall(gameLoop, "BottomLeftWall",
-                5.85351f, 1f, new Vector2(-6.69f, -10.22f), -45f);
+                5.85351f, 1f, new Vector2(-8f, -10.22f), -45f);
             new Wall(gameLoop, "LeftWall",
-                1f, 16.7883f, new Vector2(-8.45f, 0f));
+                1f, 16.7883f, new Vector2(-10f, 0f));
             new Wall(gameLoop, "RightWall",
-                1f, 16.7883f, new Vector2(8.45f, 0f));
+                1f, 16.7883f, new Vector2(10f, 0f));
         }
 
         private void CreateCasters()
         {
-            playerOne.Deck = new Unit[]
+            playerOne.Deck = new[]
             {
-                new Caster1(this, playerOne, new Vector2(-4.5f, -5f)),
-                new Caster2(this, playerOne, new Vector2(-2f, -7f)),
-                new Caster3(this, playerOne, new Vector2(2f, -7f)),
-                new Caster4(this, playerOne, new Vector2(4.5f, -5f))
+                UnitFactory.CreateUnit(playerOne.PeerInfo.PlayerData.Deck.UnitOne,this, playerOne, new Vector2(-4.5f, -5f)),
+                UnitFactory.CreateUnit(playerOne.PeerInfo.PlayerData.Deck.UnitTwo,this, playerOne, new Vector2(-2f, -7f)),
+                UnitFactory.CreateUnit(playerOne.PeerInfo.PlayerData.Deck.UnitThree,this, playerOne, new Vector2(2f, -7f)),
+                UnitFactory.CreateUnit(playerOne.PeerInfo.PlayerData.Deck.UnitFour,this, playerOne, new Vector2(4.5f, -5f))
             };
 
-            playerTwo.Deck = new Unit[]
+            playerTwo.Deck = new[]
             {
-                new Caster1(this, playerTwo, new Vector2(-4.5f, 5f)),
-                new Caster2(this, playerTwo, new Vector2(-2f, 7f)),
-                new Caster3(this, playerTwo, new Vector2(2f, 7f)),
-                new Caster4(this, playerTwo, new Vector2(4.5f, 5f))
+                UnitFactory.CreateUnit(playerTwo.PeerInfo.PlayerData.Deck.UnitOne,this, playerTwo, new Vector2(-4.5f, 5f)),
+                UnitFactory.CreateUnit(playerTwo.PeerInfo.PlayerData.Deck.UnitTwo,this, playerTwo, new Vector2(-2f, 7f)),
+                UnitFactory.CreateUnit(playerTwo.PeerInfo.PlayerData.Deck.UnitThree,this, playerTwo, new Vector2(2f, 7f)),
+                UnitFactory.CreateUnit(playerTwo.PeerInfo.PlayerData.Deck.UnitFour,this, playerTwo, new Vector2(4.5f, 5f))
             };
         }
 
-        private void StartTimer()
+        private void ResetTimer()
         {
             _turnTimeLeft = TURN_TIME;
             _timerRunning = true;
         }
 
-        private void SendGameStartEvents(PlayerInfo playerInfo)
+        private void SendGameStartEvent(PlayerInfo playerInfo)
         {
-
             List<NetworkObjectSpawnEvent> spawnEvents = new List<NetworkObjectSpawnEvent>();
             List<GameEvent> otherEvents = new List<GameEvent>();
             foreach (var go in gameLoop.activeObjects)
@@ -200,13 +203,34 @@ namespace LightGameServer.Game
                     });
                 }
             }
-            SendGameEventToPlayer(playerInfo, new GameStartEvent { LevelId = 1, PlayerType = playerInfo.PlayerType, SpawnEvents = spawnEvents.ToArray(), CanPlay = GetPlayerInTurn() == playerInfo });
+
+            SendGameEventToPlayer(playerInfo,
+                new GameStartEvent
+                {
+                    LevelId = 1,
+                    PlayerType = playerInfo.PlayerType,
+                    SpawnEvents = spawnEvents.ToArray(),
+                    EnemyPlayerData = GetOppositePlayer(playerInfo).PeerInfo.PlayerData,
+                    MyDeckBind = new[]
+                    {
+                        new DeckGameObjectBind{DeckIndex = 0, GameObjectId = playerInfo.Deck[0].id},
+                        new DeckGameObjectBind{DeckIndex = 1, GameObjectId = playerInfo.Deck[1].id},
+                        new DeckGameObjectBind{DeckIndex = 2, GameObjectId = playerInfo.Deck[2].id},
+                        new DeckGameObjectBind{DeckIndex = 3, GameObjectId = playerInfo.Deck[3].id}
+                    },
+                    EnemyDeckBind = new[]
+                    {
+                        new DeckGameObjectBind{DeckIndex = 0, GameObjectId = GetOppositePlayer(playerInfo).Deck[0].id},
+                        new DeckGameObjectBind{DeckIndex = 1, GameObjectId = GetOppositePlayer(playerInfo).Deck[1].id},
+                        new DeckGameObjectBind{DeckIndex = 2, GameObjectId = GetOppositePlayer(playerInfo).Deck[2].id},
+                        new DeckGameObjectBind{DeckIndex = 3, GameObjectId = GetOppositePlayer(playerInfo).Deck[3].id}
+                    }
+                });
             SendGameEventToPlayer(playerInfo, otherEvents.ToArray());
         }
 
         private void SendTurnEvent()
         {
-
             SendGameEventToPlayers(SendOptions.ReliableOrdered,
                 new TurnSyncEvent
                 {
@@ -225,7 +249,10 @@ namespace LightGameServer.Game
             }
             else
             {
-                GetPlayerNotInTurn().IncrementDeckIndex();
+                if (!GetPlayerNotInTurn().IncrementDeckIndex())
+                {
+                    EndGame();
+                }
             }
         }
 
@@ -285,37 +312,53 @@ namespace LightGameServer.Game
                 if (go is Unit)
                 {
                     var unit = (Unit)go;
-                    if (!unit.IsAlive)
+                    if (!unit.IsAlive && !unit.Destroyed)
                     {
                         unit.Destroy();
+                        if (GetPlayerInTurn().GetSelectedUnit() == unit)
+                        {
+                            if (!GetPlayerInTurn().IncrementDeckIndex())
+                            {
+                                EndGame();
+                                return;
+                            }
+                        }
                     }
                 }
             }
 
-            GetPlayerNotInTurn().IncrementDeckIndex();
-            StartTimer();
+            if (!GetPlayerNotInTurn().IncrementDeckIndex())
+            {
+                EndGame();
+                return;
+            }
+            ResetTimer();
             _sendPositions = false;
 
-            SendCanPlay(true);
+            SendCanPlay();
             if (!GetPlayerInTurn().PeerInfo.IsConnected)
             {
                 PlayBotMove();
             }
         }
 
-        private void SendCanPlay(bool canPlay)
+        private void SendCanPlay()
         {
-            GetPlayerInTurn().CanPlay = canPlay;
-            SendGameEventToPlayer(GetPlayerInTurn(), new CanPlayEvent { CanPlay = canPlay, SelectedUnitId = GetPlayerInTurn().GetSelectedGoId() });
-            GetPlayerNotInTurn().CanPlay = !canPlay;
-            SendGameEventToPlayer(GetPlayerNotInTurn(), new CanPlayEvent { CanPlay = !canPlay, SelectedUnitId = GetPlayerInTurn().GetSelectedGoId() });
+            GetPlayerInTurn().CanPlay = true;
+            SendGameEventToPlayer(GetPlayerInTurn(), new CanPlayEvent { CanPlay = true, SelectedUnitId = GetPlayerInTurn().GetSelectedGoId() });
+            GetPlayerNotInTurn().CanPlay = false;
+            SendGameEventToPlayer(GetPlayerNotInTurn(), new CanPlayEvent { CanPlay = false, SelectedUnitId = GetPlayerInTurn().GetSelectedGoId() });
         }
 
         private void PlayBotMove()
         {
             var dir = new Vector2(MathHelper.NextFloat(-1, 1f), MathHelper.NextFloat(-1, 1f));
             dir.Normalize();
-            RedirectRequest(SendOptions.ReliableOrdered, new SetAimDirectionRequest { Active = true, DirectionX = dir.X, DirectionZ = dir.Y }, GetPlayerNotInTurn().PeerInfo.NetPeer);
+            gameLoop.AddInvokable(new Invokable(() =>
+            {
+                RedirectRequest(SendOptions.ReliableOrdered, new SetAimDirectionRequest { Active = true, DirectionX = dir.X, DirectionZ = dir.Y }, GetPlayerNotInTurn().PeerInfo.NetPeer);
+            }, 100f, true));
+
             gameLoop.AddInvokable(new Invokable(() =>
             {
                 RedirectRequest(SendOptions.ReliableOrdered, new SetAimDirectionRequest { Active = false }, GetPlayerNotInTurn().PeerInfo.NetPeer);
@@ -327,11 +370,11 @@ namespace LightGameServer.Game
         {
             BuildWalls();
             CreateCasters();
-            SendGameStartEvents(playerOne);
-            SendGameStartEvents(playerTwo);
+            SendGameStartEvent(playerOne);
+            SendGameStartEvent(playerTwo);
             SendTurnEvent();
-            SendCanPlay(true);
-            StartTimer();
+            SendCanPlay();
+            ResetTimer();
             gameLoop.AddInvokable(new Invokable(() =>
             {
                 if (!_timerRunning) return;
@@ -339,10 +382,10 @@ namespace LightGameServer.Game
                 if (_turnTimeLeft <= 0)
                 {
                     GetPlayerInTurn().CanPlay = false;
-                    SwitchTurns(true);
+                    SwitchTurns(skipStopped: true);
                     GetPlayerInTurn().CanPlay = true;
                     SendGameEventToPlayer(GetPlayerNotInTurn(), new CanPlayEvent { CanPlay = false, SelectedUnitId = GetPlayerInTurn().GetSelectedGoId() });
-                    StartTimer();
+                    ResetTimer();
                     if (!GetPlayerInTurn().PeerInfo.IsConnected)
                     {
                         PlayBotMove();
@@ -391,6 +434,23 @@ namespace LightGameServer.Game
             }
         }
 
+        private PlayerInfo GetWinnner()
+        {
+            if (playerOne.AreAllUnitsDead()) return playerTwo;
+            if (playerTwo.AreAllUnitsDead()) return playerOne;
+            return null;
+        }
+
+        private void EndGame()
+        {
+            var winner = GetWinnner();
+            if (winner != null)
+            {
+                SendGameEventToPlayers(SendOptions.ReliableOrdered, new EndGameEvent { WinnerPlayerType = (byte)winner.PlayerType });
+                Server.Get().GameManager.StopMatch(this);
+            }
+        }
+
         private void SendGameEventToPlayer(PlayerInfo player, params GameEvent[] gameEvents)
         {
             foreach (var gameEvent in gameEvents)
@@ -415,6 +475,7 @@ namespace LightGameServer.Game
         private void RedirectRequest(SendOptions sendOption, RequestEvent requestEvent, NetPeer peer)
         {
             if (peer == null) return;
+            requestEvent.TimeStamp = gameLoop.Time;
             NetDataWriter writer = _requestEventSerializer.Serialize(requestEvent);
             DataSender.New(peer).Send(writer, sendOption);
         }

@@ -41,6 +41,8 @@ namespace LightGameServer.Game.Prefabs.Units
             get { return Hp > 0; }
         }
 
+        public bool Destroyed { get; private set; }
+
 
         public Unit(Match myMatch, PlayerInfo playerInfo, UnitSettings settings, Vector2 pos) : base(myMatch.gameLoop, settings.Name, new Rigidbody(myMatch.gameLoop, settings.Radius, settings.Density, pos, BodyType.Dynamic))
         {
@@ -92,6 +94,8 @@ namespace LightGameServer.Game.Prefabs.Units
 
         public override void Destroy()
         {
+            if (Destroyed) return;
+            Destroyed = true;
             MyMatch.SendGameEventToPlayers(SendOptions.ReliableOrdered, new NetworkObjectDestroyEvent { Id = id });
             base.Destroy();
         }

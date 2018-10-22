@@ -32,7 +32,7 @@ namespace LightGameServer.NetworkHandling
 
         private const string CONNECTION_KEY = "PzM@.5p&k!aZJXH6,mq44R\\ue?%BSSS*t\'N8xxH=L+\"S\'4^N,m5M{`N;>K]7{vUB[R!B\"?>sV!&d~b(G-pYW%5&,6_J5>Hky95.DTG_dhM^x]ph(&.\\.Xc(B.fFGW`e_";
         private const int PORT = 60001;
-        public const int UPDATE_TIME = 15;
+        public const int UPDATE_TIME = 33;
 
         public Dictionary<NetPeer, PeerInfo> PeerInfos { get; }
         public PendingGamePool PendingGamePool { get; }
@@ -96,8 +96,8 @@ namespace LightGameServer.NetworkHandling
             {
                 server.PollEvents();
                 ReslovePendingPool();
-                Thread.Sleep(UPDATE_TIME);
                 consoleMenu.Update();
+                Thread.Sleep(UPDATE_TIME);
             }
             server.Stop();
         }
@@ -107,15 +107,16 @@ namespace LightGameServer.NetworkHandling
             var pairs = PendingGamePool.ResolvePendings();
             foreach (var playerPair in pairs)
             {
-                DataSender.New(playerPair.PlayerOne.NetPeer).Send(playerPair.PlayerTwo.PlayerData.Serialize(NetworkCommand.GameStarted), SendOptions.ReliableOrdered);
-                DataSender.New(playerPair.PlayerTwo.NetPeer).Send(playerPair.PlayerOne.PlayerData.Serialize(NetworkCommand.GameStarted), SendOptions.ReliableOrdered);
+                DataSender.New(playerPair.PlayerOne.NetPeer).Send(NetworkCommand.GameStarted, SendOptions.ReliableOrdered, playerPair.PlayerTwo.PlayerData.Name);
+                DataSender.New(playerPair.PlayerTwo.NetPeer).Send(NetworkCommand.GameStarted, SendOptions.ReliableOrdered, playerPair.PlayerOne.PlayerData.Name);
                 GameManager.StartMatch(playerPair.PlayerOne, playerPair.PlayerTwo);
             }
 
             var waiters = PendingGamePool.ResolveWaiters();
             foreach (var waiter in waiters)
             {
-                DataSender.New(waiter.NetPeer).Send(new PlayerData { Name = "BOT", LadderScore = waiter.PlayerData.LadderScore }.Serialize(NetworkCommand.GameStarted), SendOptions.ReliableOrdered);
+                DataSender.New(waiter.NetPeer)
+                    .Send(NetworkCommand.GameStarted, SendOptions.ReliableOrdered, "BOT");
                 GameManager.StartMatch(waiter);
             }
         }
